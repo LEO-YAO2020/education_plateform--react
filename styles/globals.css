@@ -14,3 +14,14 @@ a {
 * {
   box-sizing: border-box;
 }
+.main {
+  position: relative;
+  width: 1000px;
+  height: 1000px;
+  text-align: center;
+
+  margin: 100px auto;
+}
+/* .ratio {
+  margin-left: 50px !important;
+} */
