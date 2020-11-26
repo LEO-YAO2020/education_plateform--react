@@ -1,10 +1,15 @@
-import Head from "next/head";
-import Login from "../components/login";
+import Router from "next/router";
 
 export default function Home() {
   return (
     <div>
-      <Login />
+      <button
+        onClick={() => {
+          Router.push("/login");
+        }}
+      >
+        Login
+      </button>
     </div>
   );
 }
