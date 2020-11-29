@@ -1,4 +1,4 @@
-import { createServer, Model } from "miragejs";
+import { createServer, Model, Response } from "miragejs";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -27,23 +27,33 @@ export function makeServer({ environment = "test" } = {}) {
     },
 
     routes() {
-      this.namespace = "api";
-
-      this.get("/users/:type", (schema, request) => {
-        let type = request.params.type;
-        switch (type) {
-          case "student":
-            return schema.users.find(1);
-          case "teacher":
-            return schema.users.find(2);
-          case "manager":
-            return schema.users.find(3);
-        }
-      });
-
       this.passthrough((request) => {
         if (request.url === "/_next/static/development/_devPagesManifest.json")
           return true;
+      });
+      this.namespace = "api";
+
+      this.post("/users", (schema, request) => {
+        let type = JSON.parse(request.requestBody);
+        //const user = schema.users.all();
+        const user = schema.users.where({
+          email: type.email,
+          password: type.password,
+          type: type.type,
+        });
+        console.log(type);
+        console.log(user);
+        if (user.length === 1) {
+          const token = type.email;
+          console.log(token);
+          return new Response(200, {}, { token, loginType: type.type });
+        } else {
+          return new Response(
+            400,
+            {},
+            { error: "check out your email or type" }
+          );
+        }
       });
     },
   });
