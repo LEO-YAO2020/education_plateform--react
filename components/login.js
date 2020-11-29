@@ -1,34 +1,27 @@
 import React from "react";
-import { Radio, Form, Input, Button, Checkbox } from "antd";
+import { Radio, Form, Input, Button, Checkbox, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import Router from "next/router";
 import axios from "axios";
 
 let onFinish = async (values) => {
-  const res = await axios.get("/api/users/" + values.type);
-  console.log("远程数据结果：", res.data);
-  const value = {
-    token: { email: values.Email, password: values.password },
-    LoginType: values.type,
-  };
-  if (
-    values.type == "student" ||
-    values.type == "manager" ||
-    values.type == "teacher"
-  ) {
-    if (
-      values.Email == res.data.user.email &&
-      values.password == res.data.user.password
-    ) {
-      let { token, LoginType } = value;
-      localStorage.setItem("token", token);
-      localStorage.setItem("LoginType", LoginType);
-      Router.push("/dashboard");
-    } else {
-      alert("Please Enter Correct Email or Password");
-    }
+  const loginResponse = await axios
+    .post("/api/users", {
+      email: values.Email,
+      password: values.password,
+      type: values.type,
+    })
+    .then((res) => {
+      // console.log("回执====>" + res);
+
+      return res;
+    });
+  console.log(loginResponse);
+  if (loginResponse.status === 200) {
+    localStorage.setItem("user", JSON.stringify(loginResponse.data));
+    Router.push("/dashboard");
   } else {
-    alert("Please Choose your type");
+    message.error("Login failed! Please check you email and password!");
   }
 };
 
@@ -62,9 +55,6 @@ const Login = function () {
     <div className="main">
       <h2>Course Assistant</h2>
 
-      <br />
-      <br />
-
       <Form
         {...layout}
         name="basic"
@@ -74,8 +64,8 @@ const Login = function () {
           remember: true,
         }}
       >
-        <Form.Item className="ratio" label="Type" name="type">
-          <Radio.Group initialValues="Student">
+        <Form.Item label="Type" name="type">
+          <Radio.Group initialValues="student">
             <Radio.Button value="student">Student</Radio.Button>
             <Radio.Button value="teacher">Teacher</Radio.Button>
             <Radio.Button value="manager">Manager</Radio.Button>
@@ -105,10 +95,12 @@ const Login = function () {
           rules={[
             {
               required: true,
+              message: "....",
+            },
+            {
               min: 4,
               max: 16,
-              message:
-                "Password length cannot be less than 4 or greater than 16 digits!",
+              message: "Password length cannot be greater than 16 digits!",
             },
           ]}
         >
