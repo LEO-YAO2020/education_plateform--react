@@ -1,4 +1,5 @@
 import { createServer, Model, Response } from "miragejs";
+import Student from "../data/student.json";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -6,6 +7,7 @@ export function makeServer({ environment = "test" } = {}) {
 
     models: {
       user: Model,
+      student: Model,
     },
 
     seeds(server) {
@@ -23,6 +25,10 @@ export function makeServer({ environment = "test" } = {}) {
         type: "manager",
         email: "29557731111@qq.com",
         password: 12345678,
+      });
+
+      Student.forEach((element) => {
+        server.create("student", element);
       });
     },
 
@@ -54,6 +60,11 @@ export function makeServer({ environment = "test" } = {}) {
             { error: "check out your email or type" }
           );
         }
+      });
+
+      this.get("/students", (schema) => {
+        console.log(schema);
+        return schema.students.all();
       });
     },
   });
