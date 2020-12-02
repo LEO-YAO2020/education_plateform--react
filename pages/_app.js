@@ -1,8 +1,7 @@
-import "../styles/globals.css";
-import { makeServer } from "../mirage/mirage";
+import { makeServer } from '../mirage/mirage';
 
-if (process.env.NODE_ENV === "development") {
-  makeServer({ environment: "development" });
+if (process.env.NODE_ENV === 'development') {
+  makeServer({ environment: 'development' });
 }
 
 function MyApp({ Component, pageProps }) {

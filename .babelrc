@@ -1,3 +1,4 @@
+
 {
     "presets":["next/babel"], 
     "plugins":[  
@@ -7,6 +8,8 @@
                 "libraryName":"antd",
                 "style":"css"  // 引入css
             }
-        ]
+            
+        ],
+        "babel-plugin-styled-components"
     ]
 }

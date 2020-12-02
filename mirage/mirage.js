@@ -47,12 +47,11 @@ export function makeServer({ environment = "test" } = {}) {
           password: type.password,
           type: type.type,
         });
-        console.log(type);
-        console.log(user);
+
         if (user.length === 1) {
           const token = type.email;
-          console.log(token);
-          return new Response(200, {}, { token, loginType: type.type });
+
+          return new Response(200, {}, { token: token, loginType: type.type });
         } else {
           return new Response(
             400,
@@ -63,7 +62,6 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get("/students", (schema) => {
-        console.log(schema);
         return schema.students.all();
       });
     },
