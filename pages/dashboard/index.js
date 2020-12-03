@@ -1,6 +1,6 @@
 import { Space, Table, Input, Popconfirm } from "antd";
 import React from "react";
-import Layout from "../../components/layout/layoutComponent";
+import Layout from "../../components/layout/layout";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
 const { Search } = Input;
