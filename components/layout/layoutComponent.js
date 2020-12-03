@@ -15,7 +15,7 @@ const { Header, Sider, Content } = Layout;
 const Logo = styled.div`
   text-align: center;
   height: 63px;
-  line-height: 50px;
+  line-height: 63px;
   font-size: 25px;
   color: white;
   text-shadow: 5px 1px 5px;
