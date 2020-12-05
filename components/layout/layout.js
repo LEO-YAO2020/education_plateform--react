@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, message } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -9,6 +9,7 @@ import {
   SelectOutlined,
 } from "@ant-design/icons";
 import Router from "next/router";
+import { logout } from "../../api/response";
 
 const { Header, Sider, Content } = Layout;
 
@@ -57,10 +58,19 @@ function tableComponent(props) {
     setCollapsed(collapsed);
   };
 
-  const logOut = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("loginType");
-    Router.push("/login");
+  const logoutHandler = async () => {
+    let token = localStorage.getItem("token");
+    token = token.substr(1, token.length - 2);
+    const logoutMsg = await logout(token);
+
+    if (logoutMsg.data.data) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("loginType");
+      message.success(logoutMsg.data.msg);
+      Router.push("/login");
+    } else {
+      message.error(logoutMsg.data.msg);
+    }
   };
 
   return (
@@ -89,7 +99,7 @@ function tableComponent(props) {
                 }
               )}
 
-              <Back onClick={logOut} />
+              <Back onClick={logoutHandler} />
             </Header>
           </Trigger>
 
