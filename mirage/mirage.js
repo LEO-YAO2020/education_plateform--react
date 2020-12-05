@@ -1,5 +1,8 @@
 import { createServer, Model, Response } from "miragejs";
+import { message } from "antd";
+import { basePath } from "../api/urlService";
 import Student from "../data/student.json";
+import User from "../data/user.json";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -11,20 +14,8 @@ export function makeServer({ environment = "test" } = {}) {
     },
 
     seeds(server) {
-      server.create("user", {
-        type: "student",
-        email: "295577311@qq.com",
-        password: 123456,
-      });
-      server.create("user", {
-        type: "teacher",
-        email: "2955773111@qq.com",
-        password: 1234567,
-      });
-      server.create("user", {
-        type: "manager",
-        email: "29557731111@qq.com",
-        password: 12345678,
+      User.forEach((element) => {
+        server.create("user", element);
       });
 
       Student.forEach((element) => {
@@ -39,9 +30,9 @@ export function makeServer({ environment = "test" } = {}) {
       });
       this.namespace = "api";
 
-      this.post("/users", (schema, request) => {
+      this.post(basePath.login, (schema, request) => {
         let type = JSON.parse(request.requestBody);
-        //const user = schema.users.all();
+
         const user = schema.users.where({
           email: type.email,
           password: type.password,
@@ -51,17 +42,51 @@ export function makeServer({ environment = "test" } = {}) {
         if (user.length === 1) {
           const token = type.email;
 
-          return new Response(200, {}, { token: token, loginType: type.type });
+          return new Response(
+            200,
+            {},
+            {
+              data: { token: token, loginType: type.type },
+              msg: "login successful",
+            }
+          );
         } else {
           return new Response(
             400,
             {},
-            { error: "check out your email or type" }
+            message.error("Login failed! Please check you email and password!")
           );
         }
       });
 
-      this.get("/students", (schema) => {
+      this.post(basePath.logout, (schema, request) => {
+        const token = JSON.parse(request.requestBody);
+
+        const user = schema.users.where({
+          email: token.type,
+        });
+
+        if (user.length === 1) {
+          return new Response(
+            200,
+            {},
+            { code: 200, msg: "Successful Logout ", data: true }
+          );
+        } else {
+          return new Response(
+            400,
+            {},
+            { code: 400, msg: "Fail Logout", data: false }
+          );
+        }
+      });
+
+      this.get(basePath.student, (schema, request) => {
+        if (Object.keys(request.queryParams).length != 0) {
+          console.log(Object.keys(request.queryParams).length);
+        } else {
+          return schema.students.all();
+        }
         return schema.students.all();
       });
     },

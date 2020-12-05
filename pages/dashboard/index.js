@@ -2,7 +2,7 @@ import { Space, Table, Input, Popconfirm } from "antd";
 import React from "react";
 import Layout from "../../components/layout/layout";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import axios from "axios";
+import { getStudents, search } from "../../api/response";
 const { Search } = Input;
 
 class TableList extends React.Component {
@@ -67,17 +67,24 @@ class TableList extends React.Component {
     },
   ];
 
+  param = {
+    page: 1,
+    limit: 10,
+  };
+
   async componentDidMount() {
     this.setState({ loading: true });
-    const student = await axios.get("/api/students").then((res) => res);
+    const student = await getStudents(this.param);
 
     this.setState({
-      loading: false,
       data: student.data.students,
+      loading: false,
       pagination: {
         pageSize: 10,
         total: student.data.students.size,
         showSizeChanger: true,
+        onShowSizeChange: this.sizeChangeHandler,
+        onChange: this.pageChangeHandler,
       },
     });
   }
@@ -91,7 +98,22 @@ class TableList extends React.Component {
     };
   };
 
-  onSearch = (value) => console.log(value);
+  onSearch = async (value) => {
+    const res = await search(this.param);
+  };
+
+  sizeChangeHandler = (current, pageSize) => {
+    console.log(current, pageSize);
+  };
+
+  pageChangeHandler = (page, pageSize) => {
+    console.log(page + "---->" + pageSize);
+    this.setState({
+      pagination: {
+        pageSize: pageSize,
+      },
+    });
+  };
 
   render() {
     return (
@@ -100,7 +122,7 @@ class TableList extends React.Component {
           placeholder="input search text"
           allowClear
           onSearch={this.onSearch}
-          style={{ width: "300px", marginBottom: "20px", display: "block" }}
+          style={{ width: "30%", marginBottom: "20px", display: "block" }}
         />
         <Table
           rowKey="id"

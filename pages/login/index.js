@@ -6,14 +6,14 @@ import {
   Input,
   Button,
   Checkbox,
-  message,
   Typography,
+  message,
 } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import Router from "next/router";
-import axios from "axios";
 import styled from "styled-components";
 import Role from "../../lib/role";
+import { login } from "../../api/response";
 
 const { Title } = Typography;
 
@@ -21,26 +21,21 @@ const StyledTitle = styled(Title)`
   text-align: center;
 `;
 
-let onFinish = async (values) => {
-  const loginResponse = await axios
-    .post("/api/users", {
-      email: values.Email,
-      password: values.password,
-      type: values.loginType,
-    })
-    .then((res) => {
-      return res;
-    });
+const onFinish = async (values) => {
+  const req = [values.loginType, values.email, values.password];
+  const loginResponse = await login(...req);
 
-  if (loginResponse.status === 200) {
-    localStorage.setItem("token", JSON.stringify(loginResponse.data.token));
+  if (!!loginResponse) {
+    localStorage.setItem(
+      "token",
+      JSON.stringify(loginResponse.data.data.token)
+    );
     localStorage.setItem(
       "loginType",
-      JSON.stringify(loginResponse.data.loginType)
+      JSON.stringify(loginResponse.data.data.loginType)
     );
+    message.success(loginResponse.data.msg);
     Router.push("/dashboard");
-  } else {
-    message.error("Login failed! Please check you email and password!");
   }
 };
 
@@ -80,7 +75,7 @@ const Login = function () {
           </Form.Item>
 
           <Form.Item
-            name="Email"
+            name="email"
             rules={[
               {
                 required: true,
