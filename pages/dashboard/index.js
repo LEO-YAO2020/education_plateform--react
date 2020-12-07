@@ -1,11 +1,13 @@
-import { Space, Table, Input, Popconfirm } from "antd";
 import React from "react";
+import { Space, Table, Input, Popconfirm } from "antd";
 import Layout from "../../components/layout/layout";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { getStudents, search } from "../../api/response";
+import _ from "lodash";
+
 const { Search } = Input;
 
-class TableList extends React.Component {
+class StudentList extends React.Component {
   state = {
     data: [],
     pagination: {
@@ -77,13 +79,12 @@ class TableList extends React.Component {
     const student = await getStudents(this.param);
 
     this.setState({
-      data: student.data.students,
+      data: student.data.data,
       loading: false,
       pagination: {
-        pageSize: 10,
-        total: student.data.students.size,
+        pageSize: student.data.paginator.limit,
+        total: student.data.paginator.total,
         showSizeChanger: true,
-        onShowSizeChange: this.sizeChangeHandler,
         onChange: this.pageChangeHandler,
       },
     });
@@ -98,19 +99,64 @@ class TableList extends React.Component {
     };
   };
 
-  onSearch = async (value) => {
-    const res = await search(this.param);
-  };
-
-  sizeChangeHandler = (current, pageSize) => {
-    console.log(current, pageSize);
-  };
-
-  pageChangeHandler = (page, pageSize) => {
-    console.log(page + "---->" + pageSize);
+  value = "";
+  inputChangeHandler = async (value) => {
+    console.log(value.target.value);
+    this.value = value.target.value;
+    const params = {
+      page: 1,
+      limit: 10,
+      query: value.target.value,
+    };
+    const res = await search(params);
+    console.log(res.data);
     this.setState({
+      data: res.data.data,
+      loading: false,
       pagination: {
-        pageSize: pageSize,
+        pageSize: res.data.paginator.limit,
+        total: res.data.paginator.total,
+        showSizeChanger: true,
+        onChange: this.searchPageChangeHandler,
+      },
+    });
+  };
+
+  searchPageChangeHandler = async (page, pageSize) => {
+    const params = {
+      page: page,
+      limit: pageSize,
+      query: this.value,
+    };
+    const res = await search(params);
+
+    this.setState({
+      data: res.data.data,
+      loading: false,
+      pagination: {
+        pageSize: res.data.paginator.limit,
+        total: res.data.paginator.total,
+        showSizeChanger: true,
+        onChange: this.searchPageChangeHandler,
+      },
+    });
+  };
+
+  pageChangeHandler = async (page, pageSize) => {
+    const param = {
+      page: page,
+      limit: pageSize,
+    };
+    const student = await getStudents(param);
+
+    this.setState({
+      data: student.data.data,
+      loading: false,
+      pagination: {
+        pageSize: student.data.paginator.limit,
+        total: student.data.paginator.total,
+        showSizeChanger: true,
+        onChange: this.pageChangeHandler,
       },
     });
   };
@@ -121,7 +167,7 @@ class TableList extends React.Component {
         <Search
           placeholder="input search text"
           allowClear
-          onSearch={this.onSearch}
+          onChange={_.debounce(this.inputChangeHandler, 1000)}
           style={{ width: "30%", marginBottom: "20px", display: "block" }}
         />
         <Table
@@ -136,4 +182,4 @@ class TableList extends React.Component {
     );
   }
 }
-export default TableList;
+export default StudentList;

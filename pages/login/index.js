@@ -22,7 +22,12 @@ const StyledTitle = styled(Title)`
 `;
 
 const onFinish = async (values) => {
-  const req = [values.loginType, values.email, values.password];
+  const req = [
+    values.loginType,
+    values.email,
+    values.password,
+    values.remember,
+  ];
   const loginResponse = await login(...req);
 
   if (!!loginResponse) {

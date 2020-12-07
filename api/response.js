@@ -1,12 +1,19 @@
 import axios from "axios";
 import { basePath, subPath, creatUrl } from "./urlService";
 
-export const login = async (loginType, email, password) => {
-  const loginResponse = await axios
-    .post("api/" + basePath.login, {
+const axiosInstance = axios.create({
+  withCredentials: true,
+  baseURL: "http://localhost:3000/api",
+  responseType: "json",
+});
+
+export const login = async (loginType, email, password, remember) => {
+  const loginResponse = await axiosInstance
+    .post(creatUrl(basePath.login), {
       email: email,
       password: password,
       type: loginType,
+      remember: remember,
     })
     .then((res) => res)
     .catch((err) => console.log(err));
@@ -15,16 +22,16 @@ export const login = async (loginType, email, password) => {
 };
 
 export const getStudents = async (param) => {
-  const getStudentResponse = await axios
-    .get("api/" + creatUrl(basePath.student, param))
+  const getStudentResponse = await axiosInstance
+    .get(creatUrl(basePath.student, param))
     .then((res) => res)
     .catch((err) => console.log(err));
   return getStudentResponse;
 };
 
 export const logout = async (type) => {
-  const logoutResponse = await axios
-    .post("api/" + creatUrl(basePath.logout), { type: type })
+  const logoutResponse = await axiosInstance
+    .post(creatUrl(basePath.logout), { type: type })
     .then((res) => res)
     .catch((err) => console.log(err));
 
@@ -32,8 +39,8 @@ export const logout = async (type) => {
 };
 
 export const search = async (param) => {
-  const searchResponse = await axios
-    .get("api/" + creatUrl(basePath.student, param))
+  const searchResponse = await axiosInstance
+    .get(creatUrl(basePath.student, param))
     .then((res) => res)
     .catch((err) => console.log(err));
   return searchResponse;
