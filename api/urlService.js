@@ -5,7 +5,9 @@ export const basePath = {
 };
 
 export const subPath = {
-  detail: "detail",
+  add: "add",
+  update: "update",
+  delete: "delete",
 };
 
 export const creatUrl = (path, params) => {

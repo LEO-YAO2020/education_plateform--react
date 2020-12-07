@@ -1,6 +1,6 @@
 import { createServer, Model, Response } from "miragejs";
 import { message } from "antd";
-import { basePath } from "../api/urlService";
+import { basePath, creatUrl, subPath } from "../api/urlService";
 import Student from "../data/student.json";
 import User from "../data/user.json";
 
@@ -46,6 +46,7 @@ export function makeServer({ environment = "test" } = {}) {
             200,
             {},
             {
+              code: 0,
               data: { token: token, loginType: type.type },
               msg: "login successful",
             }
@@ -82,13 +83,145 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get(basePath.student, (schema, request) => {
-        if (Object.keys(request.queryParams).length != 0) {
-          console.log(Object.keys(request.queryParams).length);
+        const limit = request.queryParams.limit;
+        const page = request.queryParams.page;
+        let query = request.queryParams.query;
+
+        let ids = [];
+        if (typeof query == "undefined" || query == "") {
+          if (limit <= Student.length) {
+            ids.splice(0, ids.length);
+
+            for (let i = 0; i < limit; i++) {
+              ids.push(Student[i].id);
+            }
+
+            if (page != 1) {
+              const size = Student.length - limit;
+
+              if (size <= Student.length) {
+                ids.splice(0, ids.length);
+
+                for (let i = 0; i < size; i++) {
+                  ids.push(Student[i].id);
+                }
+              } else {
+                ids.splice(0, ids.length);
+
+                for (let i = 0; i < limit; i++) {
+                  ids.push(Student[i].id);
+                }
+              }
+            }
+          } else {
+            ids.splice(0, ids.length);
+
+            for (let i = 0; i < Student.length; i++) {
+              ids.push(Student[i].id);
+            }
+          }
+
+          return new Response(
+            200,
+            {},
+            {
+              code: 0,
+              msg: "Success",
+              data: schema.students.find(ids).models,
+              paginator: {
+                page: request.queryParams.page,
+                limit: request.queryParams.limit,
+                total: Student.length,
+              },
+            }
+          );
         } else {
-          return schema.students.all();
+          if (query != "") {
+            ids.splice(0, ids.length);
+            query = query.toLowerCase();
+
+            for (let i = 0; i < Student.length; i++) {
+              if (Student[i].name.indexOf(query) >= 0) {
+                ids.push(Student[i].id);
+              }
+            }
+            // } else {
+            //   if (limit <= Student.length) {
+            //     ids.splice(0, ids.length);
+
+            //     for (let i = 0; i < limit; i++) {
+            //       ids.push(Student[i].id);
+            //     }
+
+            //     if (page != 1) {
+            //       const size = Student.length - limit;
+
+            //       if (size <= Student.length) {
+            //         ids.splice(0, ids.length);
+
+            //         for (let i = 0; i < size; i++) {
+            //           ids.push(Student[i].id);
+            //         }
+            //       } else {
+            //         ids.splice(0, ids.length);
+
+            //         for (let i = 0; i < limit; i++) {
+            //           ids.push(Student[i].id);
+            //         }
+            //       }
+            //     }
+            //   } else {
+            //     ids.splice(0, ids.length);
+
+            //     for (let i = 0; i < Student.length; i++) {
+            //       ids.push(Student[i].id);
+            //     }
+            //   }
+            // }
+            return new Response(
+              200,
+              {},
+              {
+                code: 0,
+                msg: "Success",
+                data: schema.students.find(ids).models,
+                paginator: {
+                  page: request.queryParams.page,
+                  limit: request.queryParams.limit,
+                  total: schema.students.find(ids).models.length,
+                },
+              }
+            );
+          }
         }
-        return schema.students.all();
       });
+
+      this.post(
+        creatUrl([basePath.student, subPath.add]),
+        (schema, request) => {
+          const studentDetail = JSON.parse(request.requestBody);
+          console.log(studentDetail);
+          schema.students.insert();
+        }
+      );
+
+      this.post(
+        creatUrl(basePath.student, subPath.update),
+        (schema, request) => {
+          const studentDetail = JSON.parse(request.requestBody);
+          console.log(studentDetail);
+          schema.students.update();
+        }
+      );
+
+      this.delete(
+        creatUrl(basePath.student, subPath.delete),
+        (schema, request) => {
+          const studentDetail = JSON.parse(request.requestBody);
+          console.log(studentDetail);
+          schema.students.remove();
+        }
+      );
     },
   });
 

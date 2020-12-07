@@ -54,7 +54,6 @@ function tableComponent(props) {
   };
 
   const onCollapse = (collapsed) => {
-    console.log(collapsed);
     setCollapsed(collapsed);
   };
 
@@ -80,10 +79,10 @@ function tableComponent(props) {
           <Logo>CMS</Logo>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
             <Menu.Item key="1" icon={<UserOutlined />} style={{ marginTop: 0 }}>
-              学员对象
+              Students List
             </Menu.Item>
             <Menu.Item key="2" icon={<SelectOutlined />}>
-              选择学员
+              Choose Student
             </Menu.Item>
           </Menu>
         </Sider>
