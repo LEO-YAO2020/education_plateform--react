@@ -1,8 +1,13 @@
-import { createServer, Model, Response } from "miragejs";
+import { belongsTo, createServer, hasMany, Model, Response } from "miragejs";
 import { message } from "antd";
 import { basePath, creatUrl, subPath } from "../api/urlService";
 import Student from "../data/student.json";
 import User from "../data/user.json";
+import course from "../data/course.json";
+import courseType from "../data/course_type.json";
+import studentCourse from "../data/student_course.json";
+import studentType from "../data/student_type.json";
+import { format } from "date-fns";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -10,7 +15,16 @@ export function makeServer({ environment = "test" } = {}) {
 
     models: {
       user: Model,
-      student: Model,
+      student: Model.extend({
+        studentType: hasMany(),
+        typeid: belongsTo(),
+      }),
+      course: Model,
+      courseType: Model,
+      studentCourse: Model.extend({
+        course: belongsTo(),
+      }),
+      studentType: Model,
     },
 
     seeds(server) {
@@ -20,6 +34,18 @@ export function makeServer({ environment = "test" } = {}) {
 
       Student.forEach((element) => {
         server.create("student", element);
+      });
+      course.forEach((element) => {
+        server.create("course", element);
+      });
+      courseType.forEach((element) => {
+        server.create("courseType", element);
+      });
+      studentCourse.forEach((element) => {
+        server.create("studentCourse", element);
+      });
+      studentType.forEach((element) => {
+        server.create("studentType", element);
       });
     },
 
@@ -86,140 +112,105 @@ export function makeServer({ environment = "test" } = {}) {
         const limit = request.queryParams.limit;
         const page = request.queryParams.page;
         let query = request.queryParams.query;
+        const all = schema.students.all();
+        let students = all.filter((item) => !query || item.name.includes(query))
+          .models;
 
-        let ids = [];
-        if (typeof query == "undefined" || query == "") {
-          if (limit <= Student.length) {
-            ids.splice(0, ids.length);
+        const total = !query ? all.length : students.length;
 
-            for (let i = 0; i < limit; i++) {
-              ids.push(Student[i].id);
-            }
+        let data = { total, students };
 
-            if (page != 1) {
-              const size = Student.length - limit;
+        if (limit && page) {
+          const start = limit * (page - 1);
 
-              if (size <= Student.length) {
-                ids.splice(0, ids.length);
-
-                for (let i = 0; i < size; i++) {
-                  ids.push(Student[i].id);
-                }
-              } else {
-                ids.splice(0, ids.length);
-
-                for (let i = 0; i < limit; i++) {
-                  ids.push(Student[i].id);
-                }
-              }
-            }
-          } else {
-            ids.splice(0, ids.length);
-
-            for (let i = 0; i < Student.length; i++) {
-              ids.push(Student[i].id);
-            }
-          }
-
-          return new Response(
-            200,
-            {},
-            {
-              code: 0,
-              msg: "Success",
-              data: schema.students.find(ids).models,
-              paginator: {
-                page: request.queryParams.page,
-                limit: request.queryParams.limit,
-                total: Student.length,
-              },
-            }
-          );
-        } else {
-          if (query != "") {
-            ids.splice(0, ids.length);
-            query = query.toLowerCase();
-
-            for (let i = 0; i < Student.length; i++) {
-              if (Student[i].name.indexOf(query) >= 0) {
-                ids.push(Student[i].id);
-              }
-            }
-            // } else {
-            //   if (limit <= Student.length) {
-            //     ids.splice(0, ids.length);
-
-            //     for (let i = 0; i < limit; i++) {
-            //       ids.push(Student[i].id);
-            //     }
-
-            //     if (page != 1) {
-            //       const size = Student.length - limit;
-
-            //       if (size <= Student.length) {
-            //         ids.splice(0, ids.length);
-
-            //         for (let i = 0; i < size; i++) {
-            //           ids.push(Student[i].id);
-            //         }
-            //       } else {
-            //         ids.splice(0, ids.length);
-
-            //         for (let i = 0; i < limit; i++) {
-            //           ids.push(Student[i].id);
-            //         }
-            //       }
-            //     }
-            //   } else {
-            //     ids.splice(0, ids.length);
-
-            //     for (let i = 0; i < Student.length; i++) {
-            //       ids.push(Student[i].id);
-            //     }
-            //   }
-            // }
-            return new Response(
-              200,
-              {},
-              {
-                code: 0,
-                msg: "Success",
-                data: schema.students.find(ids).models,
-                paginator: {
-                  page: request.queryParams.page,
-                  limit: request.queryParams.limit,
-                  total: schema.students.find(ids).models.length,
-                },
-              }
-            );
-          }
+          students = students.slice(start, start + limit);
+          data = { ...data, paginator: { limit, page, total }, students };
         }
+        return new Response(200, {}, { data, msg: "success", code: 200 });
       });
 
       this.post(
         creatUrl([basePath.student, subPath.add]),
         (schema, request) => {
           const studentDetail = JSON.parse(request.requestBody);
+
+          const { area, email, name, typeId } = studentDetail;
           console.log(studentDetail);
-          schema.students.insert();
+          const data = schema.students.create({
+            area,
+            email,
+            name,
+            typeId,
+            ctime: format(new Date(), "yyyy/MM/dd hh:mm:ss"),
+            updateAt: format(new Date(), "yyyy/MM/dd hh:mm:ss"),
+          });
+          console.log(schema.students.all());
+          return new Response(
+            200,
+            {},
+            {
+              code: 0,
+              msg: "success",
+              data: data,
+            }
+          );
         }
       );
 
       this.post(
-        creatUrl(basePath.student, subPath.update),
+        creatUrl([basePath.student, subPath.update]),
         (schema, request) => {
           const studentDetail = JSON.parse(request.requestBody);
           console.log(studentDetail);
-          schema.students.update();
+          const { name, email, area, typeId, id } = studentDetail;
+          console.log(id);
+          const res = schema.students.findBy({ id });
+          console.log(res);
+          if (res) {
+            const data = res.update({
+              name,
+              email,
+              area,
+              typeId,
+              updateAt: format(new Date(), "yyyy/MM/dd hh:mm:ss"),
+            });
+            return new Response(
+              200,
+              {},
+              {
+                code: 0,
+                msg: "success",
+                data: data,
+              }
+            );
+          } else {
+            return new Response(
+              400,
+              {},
+              {
+                code: 400,
+                msg: "Fail can not find this element",
+              }
+            );
+          }
         }
       );
 
       this.delete(
-        creatUrl(basePath.student, subPath.delete),
+        creatUrl([basePath.student, subPath.delete]),
         (schema, request) => {
-          const studentDetail = JSON.parse(request.requestBody);
+          const studentDetail = request.queryParams.id;
           console.log(studentDetail);
-          schema.students.remove();
+          schema.students.find(studentDetail).destroy();
+          return new Response(
+            200,
+            {},
+            {
+              code: 0,
+              msg: "success",
+              data: true,
+            }
+          );
         }
       );
     },
