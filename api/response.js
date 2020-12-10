@@ -45,3 +45,29 @@ export const search = async (param) => {
     .catch((err) => console.log(err));
   return searchResponse;
 };
+
+export const deleteItem = async (param) => {
+  const deleteResponse = await axiosInstance
+    .delete(creatUrl([basePath.student, subPath.delete], param))
+    .then((res) => res)
+    .catch((err) => console.log(err));
+  return deleteResponse;
+};
+
+export const editItem = async (param) => {
+  console.log(param);
+  const editResponse = await axiosInstance
+    .post(creatUrl([basePath.student, subPath.update]), param)
+    .then((res) => res)
+    .catch((err) => console.log(err));
+  return editResponse;
+};
+
+export const addItem = async (param) => {
+  console.log(param);
+  const addResponse = await axiosInstance
+    .post(creatUrl([basePath.student, subPath.add]), param)
+    .then((res) => res)
+    .catch((err) => console.log(err));
+  return addResponse;
+};
