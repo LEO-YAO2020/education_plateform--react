@@ -55,7 +55,6 @@ export const deleteItem = async (param) => {
 };
 
 export const editItem = async (param) => {
-  console.log(param);
   const editResponse = await axiosInstance
     .post(creatUrl([basePath.student, subPath.update]), param)
     .then((res) => res)
@@ -64,7 +63,6 @@ export const editItem = async (param) => {
 };
 
 export const addItem = async (param) => {
-  console.log(param);
   const addResponse = await axiosInstance
     .post(creatUrl([basePath.student, subPath.add]), param)
     .then((res) => res)
