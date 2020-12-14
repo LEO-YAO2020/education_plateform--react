@@ -102,10 +102,28 @@ function tableComponent(props) {
     });
   };
 
-  console.log(pathname.split("/"));
-
-  const getBreadcrumbNode = (MenuList) => {
+  const getBreadcrumbNode = () => {
     const pathnameNode = pathname.split("/");
+
+    if (pathnameNode[pathnameNode.length - 1] === "manager") {
+      return (
+        <Breadcrumb.Item>
+          <a href="/dashboard/manager">CMS MANAGER SYSTEM</a>
+        </Breadcrumb.Item>
+      );
+    } else if (pathnameNode[pathnameNode.length - 1] === "students") {
+      return (
+        <>
+          <Breadcrumb.Item>
+            <a href="/dashboard/manager">CMS MANAGER SYSTEM</a>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>Student List</Breadcrumb.Item>
+          <Breadcrumb.Item>
+            <a href="/dashboard/manager/student">Student List</a>
+          </Breadcrumb.Item>
+        </>
+      );
+    }
   };
 
   return (
