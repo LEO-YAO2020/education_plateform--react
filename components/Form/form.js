@@ -5,12 +5,6 @@ import { editItem, addItem } from "../../api/response";
 const EditList = (props) => {
   const { student } = props;
   const [form] = Form.useForm();
-
-  //   console.log(student.name);
-  //   console.log(student.email);
-  //   console.log(student.area);
-  //   console.log(student.typeId);
-
   const layout = {
     labelCol: {
       span: 6,
@@ -26,49 +20,42 @@ const EditList = (props) => {
     },
   };
   const onFinish = async (values) => {
-    console.log("Success:", values);
     if (!props.isAdd) {
       const params = {
         name: values.name,
         email: values.email,
         area: values.area,
-        typeId: values.typeid == "tester" ? 1 : 2,
+        type: values.type,
         id: student.id,
       };
-      const editStudent = await editItem(params);
-      console.log(editStudent);
-
-      if (editStudent.data.code == 0) {
-        message.success(editStudent.data.msg);
-        props.isRender();
+      const response = await editItem(params);
+      console.log(response);
+      if (response.data.code === 0) {
+        message.success(response.data.msg);
+        props.editSuccess(response.data.data);
       } else {
-        message.error(editStudent.data.msg);
+        message.error(response.data.msg);
       }
     } else {
       const params = {
         name: values.name,
         email: values.email,
         area: values.area,
-        typeId: values.typeid == "tester" ? 1 : 2,
+        typeId: values.typeid === "tester" ? 1 : 2,
       };
-      const addStudent = await addItem(params);
+      const response = await addItem(params);
 
-      if (addStudent.data.code == 0) {
-        message.success(addStudent.data.msg);
-        props.isRender();
+      if (response.data.code == 0) {
+        message.success(response.data.msg);
+        props.addSuccess(response.data.data);
       } else {
-        message.error(addStudent.data.msg);
+        message.error(response.data.msg);
       }
     }
   };
 
-  const onAreaChange = (value) => {
-    console.log(value);
-  };
-  console.log(props.isAdd);
   const initialValues = () => {
     if (!props.isAdd) {
-      console.log(1111);
       const initialValues = {
         name: student.name,
         email: student.email,
@@ -77,11 +64,11 @@ const EditList = (props) => {
       };
       return initialValues;
     } else {
-      console.log(22222);
       const initialValues = {
         name: "",
         email: "",
       };
+
       return initialValues;
     }
   };
@@ -112,6 +99,7 @@ const EditList = (props) => {
         name="email"
         rules={[
           {
+            type: "email",
             message: "Please input your email !",
           },
         ]}
@@ -130,7 +118,6 @@ const EditList = (props) => {
       >
         <Select
           placeholder="Select a option and change input text above"
-          onChange={onAreaChange}
           allowClear
         >
           <Select.Option value="China">China</Select.Option>
@@ -141,7 +128,7 @@ const EditList = (props) => {
       </Form.Item>
       <Form.Item
         label="Student Type"
-        name="typeid"
+        name="type"
         rules={[
           {
             required: true,
@@ -151,11 +138,10 @@ const EditList = (props) => {
       >
         <Select
           placeholder="Select a option and change input text above"
-          onChange={onAreaChange}
           allowClear
         >
-          <Select.Option value="developer">Developer</Select.Option>
-          <Select.Option value="tester">Tester</Select.Option>
+          <Select.Option value={2}>Developer</Select.Option>
+          <Select.Option value={1}>Tester</Select.Option>
         </Select>
       </Form.Item>
 

@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Layout, Menu, message } from "antd";
+import { Layout, Menu, message, Breadcrumb } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   LogoutOutlined,
-  UserOutlined,
-  SelectOutlined,
 } from "@ant-design/icons";
-import Router from "next/router";
+import Router, { withRouter } from "next/router";
 import { logout } from "../../api/response";
+import SubMenu from "antd/lib/menu/SubMenu";
+import { menuList } from "../../data/menuData/menuList";
 
 const { Header, Sider, Content } = Layout;
 
@@ -28,7 +28,7 @@ const Back = styled(LogoutOutlined)`
   float: right;
   margin-top: 23px;
   margin-right: 20px;
-  color: white !important;
+  color: white;
   font-size: 18px;
   &:hover {
     color: #1890ff;
@@ -39,9 +39,9 @@ const Trigger = styled.div`
   .trigger {
     font-size: 18px;
     padding: 0 24px;
-    color: white !important;
+    color: white;
   }
-  &:hover {
+  .trigger:hover {
     color: #1890ff;
   }
 `;
@@ -72,49 +72,82 @@ function tableComponent(props) {
     }
   };
 
-  return (
-    <>
-      <Layout style={{ minHeight: "100vh" }}>
-        <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
-          <Logo>CMS</Logo>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-            <Menu.Item key="1" icon={<UserOutlined />} style={{ marginTop: 0 }}>
-              Students List
-            </Menu.Item>
-            <Menu.Item key="2" icon={<SelectOutlined />}>
-              Choose Student
-            </Menu.Item>
-          </Menu>
-        </Sider>
+  const pathname = props.router.pathname;
 
-        <Layout className="site-layout">
-          <Trigger>
-            <Header className="site-layout-background" style={{ padding: 0 }}>
-              {React.createElement(
-                collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
-                {
-                  className: "trigger",
-                  onClick: toggle,
-                }
-              )}
+  let subMenu = pathname.split("/");
+  subMenu = subMenu.slice(-1);
 
-              <Back onClick={logoutHandler} />
-            </Header>
-          </Trigger>
-
-          <Content
-            className="site-layout-background"
-            style={{
-              margin: "24px 16px",
-              padding: 24,
+  const getMenuNodes = (MenuList) => {
+    return MenuList.map((item) => {
+      if (!item.children) {
+        return (
+          <Menu.Item
+            key={item.path}
+            icon={item.icon}
+            style={{ marginTop: 0 }}
+            onClick={() => {
+              Router.push(item.path);
             }}
           >
-            {props.children}
-          </Content>
-        </Layout>
+            {item.title}
+          </Menu.Item>
+        );
+      } else {
+        return (
+          <SubMenu key={item.key} title={item.title} icon={item.icon}>
+            {getMenuNodes(item.children)}
+          </SubMenu>
+        );
+      }
+    });
+  };
+
+  console.log(pathname.split("/"));
+
+  const getBreadcrumbNode = (MenuList) => {
+    const pathnameNode = pathname.split("/");
+  };
+
+  return (
+    <Layout style={{ minHeight: "100vh" }}>
+      <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+        <Logo>CMS</Logo>
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultOpenKeys={subMenu}
+          defaultSelectedKeys={[pathname]}
+        >
+          {getMenuNodes(menuList)}
+        </Menu>
+      </Sider>
+      <Layout className="site-layout">
+        <Trigger>
+          <Header className="site-layout-background" style={{ padding: 0 }}>
+            {React.createElement(
+              collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
+              {
+                className: "trigger",
+                onClick: toggle,
+              }
+            )}
+
+            <Back onClick={logoutHandler} />
+          </Header>
+        </Trigger>
+        <Content
+          className="site-layout-background"
+          style={{
+            margin: "24px 16px",
+            padding: 24,
+          }}
+        >
+          <Breadcrumb>{getBreadcrumbNode(menuList)}</Breadcrumb>
+          {props.children}
+        </Content>
       </Layout>
-    </>
+    </Layout>
   );
 }
 
-export default tableComponent;
+export default withRouter(tableComponent);
