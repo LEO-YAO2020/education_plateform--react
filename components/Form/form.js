@@ -3,7 +3,9 @@ import { Form, Input, Button, Select, message } from "antd";
 import { editItem, addItem } from "../../api/response";
 
 const EditList = (props) => {
-  const { student } = props;
+  console.log("props :>> ", props.studentDetail);
+  console.log("props :>> ", props.isAdd);
+  const { student, studentDetail } = props;
   const [form] = Form.useForm();
   const layout = {
     labelCol: {
@@ -19,6 +21,7 @@ const EditList = (props) => {
       span: 16,
     },
   };
+
   const onFinish = async (values) => {
     if (!props.isAdd) {
       const params = {
@@ -26,11 +29,11 @@ const EditList = (props) => {
         email: values.email,
         area: values.area,
         type: values.type,
-        id: student.id,
+        id: student,
       };
       const response = await editItem(params);
-      console.log(response);
-      if (response.data.code === 0) {
+
+      if (response.data.code === 200) {
         message.success(response.data.msg);
         props.editSuccess(response.data.data);
       } else {
@@ -41,12 +44,11 @@ const EditList = (props) => {
         name: values.name,
         email: values.email,
         area: values.area,
-        typeId: values.typeid === "tester" ? 1 : 2,
+        typeId: values.type,
       };
       const response = await addItem(params);
 
-      if (response.data.code == 0) {
-        message.success(response.data.msg);
+      if (response.data.code === 200) {
         props.addSuccess(response.data.data);
       } else {
         message.error(response.data.msg);
@@ -57,10 +59,9 @@ const EditList = (props) => {
   const initialValues = () => {
     if (!props.isAdd) {
       const initialValues = {
-        name: student.name,
-        email: student.email,
-        area: student.area,
-        typeid: student.typeid,
+        name: studentDetail.name,
+        email: studentDetail.email,
+        area: studentDetail.area,
       };
       return initialValues;
     } else {
@@ -74,13 +75,7 @@ const EditList = (props) => {
   };
 
   return (
-    <Form
-      {...layout}
-      form={form}
-      name="basic"
-      onFinish={onFinish}
-      initialValues={initialValues()}
-    >
+    <Form {...layout} form={form} name="basic" onFinish={onFinish}>
       <Form.Item
         label="Name"
         name="name"
@@ -106,6 +101,7 @@ const EditList = (props) => {
       >
         <Input />
       </Form.Item>
+
       <Form.Item
         label="Area"
         name="area"
@@ -126,6 +122,7 @@ const EditList = (props) => {
           <Select.Option value="NewZealand">NewZealand</Select.Option>
         </Select>
       </Form.Item>
+
       <Form.Item
         label="Student Type"
         name="type"

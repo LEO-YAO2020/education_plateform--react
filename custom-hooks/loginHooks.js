@@ -2,16 +2,15 @@ import Router from "next/router";
 import { useEffect } from "react";
 
 export const useLoginType = () => {
-  let type = localStorage.getItem("loginType");
-  const token = localStorage.getItem("token");
-  type = type.substr(1, type.length - 2);
-  console.log(type);
   useEffect(() => {
-    if (!!type) {
-      Router.push(`/dashboard/${type}`);
+    if (!!localStorage.getItem("loginType")) {
+      let type = localStorage.getItem("loginType");
+
+      type = type.substr(1, type.length - 2);
+      Router.push(`/dashboard/${type}`, undefined, { shallow: true });
     }
-    if (!token) {
-      Router.push("/login");
+    if (!localStorage.getItem("token")) {
+      Router.push("/login", undefined, { shallow: true });
     }
   }, []);
 };

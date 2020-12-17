@@ -141,21 +141,22 @@ export function makeServer({ environment = "test" } = {}) {
         creatUrl([basePath.student, subPath.add]),
         (schema, request) => {
           const studentDetail = JSON.parse(request.requestBody);
-          const { area, email, name, type } = studentDetail;
+          const { area, email, name, typeId } = studentDetail;
           const data = schema.students.create({
             area,
             email,
             name,
-            typeId: type,
+            typeId: typeId,
             ctime: format(new Date(), "yyyy/MM/dd hh:mm:ss"),
           });
+
           data.attrs.typeName = data.type.name;
 
           return new Response(
             200,
             {},
             {
-              code: 0,
+              code: 200,
               msg: "success",
               data: data,
             }
@@ -178,15 +179,16 @@ export function makeServer({ environment = "test" } = {}) {
               typeId: type,
               updateAt: format(new Date(), "yyyy/MM/dd hh:mm:ss"),
             });
+
             data.attrs.typeName = data.type.name;
-            console.log(data);
+
             return new Response(
               200,
               {},
               {
-                code: 0,
+                code: 200,
                 msg: "success",
-                data: data,
+                data,
               }
             );
           } else {

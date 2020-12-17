@@ -6,7 +6,6 @@ import { deleteItem, getStudents, search } from "../../../../api/response";
 import _ from "lodash";
 import EditForm from "../../../../components/Form/form";
 import { formatDistanceToNow } from "date-fns";
-import Link from "next/link";
 
 const { Search } = Input;
 
@@ -15,7 +14,6 @@ class StudentList extends React.Component {
     isModalVisible: false,
     index: 0,
     addStudent: false,
-    studentDetail: [],
     data: [],
     pagination: {
       current: 1,
@@ -39,13 +37,6 @@ class StudentList extends React.Component {
         const nextName = next.name.charCodeAt(0);
 
         return preName - nextName == 0 ? 0 : preName - nextName;
-      },
-      render: (_value, record) => {
-        return (
-          <Link href={`/dashboard/manager/students/${record.id}`}>
-            {record.name}
-          </Link>
-        );
       },
     },
     {
@@ -109,7 +100,6 @@ class StudentList extends React.Component {
               this.setState({
                 isModalVisible: true,
                 index: record.id,
-                studentDetail: record,
                 addStudent: false,
               })
             }
@@ -293,7 +283,6 @@ class StudentList extends React.Component {
         >
           <EditForm
             student={this.state.index}
-            studentDetail={this.state.studentDetail}
             isAdd={this.state.addStudent}
             addSuccess={(student) => {
               this.setState({
