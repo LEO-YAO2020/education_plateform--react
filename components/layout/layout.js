@@ -9,7 +9,8 @@ import {
 import Router, { withRouter } from "next/router";
 import { logout } from "../../api/response";
 import SubMenu from "antd/lib/menu/SubMenu";
-import { menuList } from "../../data/menuData/menuList";
+import { routes } from "../../data/menuData/menuList";
+import Link from "next/link";
 
 const { Header, Sider, Content } = Layout;
 
@@ -46,13 +47,79 @@ const Trigger = styled.div`
   }
 `;
 
-function tableComponent(props) {
-  const [collapsed, setCollapsed] = useState(false);
+const StyledContent = styled(Content)`
+  margin: 16px;
+  background-color: #fff;
+  padding: 16px;
+  min-height: auto;
+`;
 
+const isDetailPath = (path) => {
+  const length = path.length;
+  const last = path[length - 1];
+  const reg = /\[.*\]/;
+
+  return reg.test(last);
+};
+
+const getSubBreadcrumbNode = (menuList, pathnameNode, subPath) => {
+  let path = subPath.split("/");
+  let result = isDetailPath(pathnameNode);
+
+  if (result) {
+    pathnameNode.pop();
+    path.pop();
+    path = path.join("/");
+  } else {
+    path = path.join("/");
+  }
+  return menuList.map((item) => {
+    if (item.children) {
+      if (item.key === pathnameNode[pathnameNode.length - 1]) {
+        return item.children.map((subList) => {
+          if (subList.path === path) {
+            return (
+              <>
+                <Breadcrumb.Item key={path}>{item.title}</Breadcrumb.Item>
+
+                {pathnameNode[pathnameNode.length - 1] === item.key ? (
+                  result ? (
+                    <>
+                      <Breadcrumb.Item key={path}>
+                        <Link href={path}>{subList.title}</Link>
+                      </Breadcrumb.Item>
+                      <Breadcrumb.Item key={path}> Detail</Breadcrumb.Item>
+                    </>
+                  ) : (
+                    <Breadcrumb.Item key={path}>
+                      {subList.title}
+                    </Breadcrumb.Item>
+                  )
+                ) : null}
+              </>
+            );
+          }
+        });
+      }
+    }
+  });
+};
+
+function TableComponent(props) {
+  let pathname = props.router.pathname;
+  let defaultSelectedKeys = pathname;
+  let subMenu = pathname.split("/");
+
+  if (isDetailPath(subMenu)) {
+    defaultSelectedKeys = pathname.slice(0, -5);
+    subMenu.pop();
+  }
+
+  const menuList = routes.get(subMenu[2]);
+  const [collapsed, setCollapsed] = useState(false);
   const toggle = () => {
     setCollapsed(!collapsed);
   };
-
   const onCollapse = (collapsed) => {
     setCollapsed(collapsed);
   };
@@ -71,11 +138,6 @@ function tableComponent(props) {
       message.error(logoutMsg.data.msg);
     }
   };
-
-  const pathname = props.router.pathname;
-
-  let subMenu = pathname.split("/");
-  subMenu = subMenu.slice(-1);
 
   const getMenuNodes = (MenuList) => {
     return MenuList.map((item) => {
@@ -102,29 +164,24 @@ function tableComponent(props) {
     });
   };
 
-  const getBreadcrumbNode = () => {
+  const getBreadcrumbNode = (menuList) => {
     const pathnameNode = pathname.split("/");
+    const root = pathnameNode.slice(0, 3).join("/");
+    const subPath = pathnameNode.slice(0).join("/");
 
-    if (pathnameNode[pathnameNode.length - 1] === "manager") {
-      return (
+    return (
+      <Breadcrumb style={{ margin: "10px 16px" }}>
         <Breadcrumb.Item>
-          <a href="/dashboard/manager">CMS MANAGER SYSTEM</a>
+          <Link
+            href={root}
+          >{`CMS ${pathnameNode[2].toLocaleUpperCase()} SYSTEM`}</Link>
         </Breadcrumb.Item>
-      );
-    } else if (pathnameNode[pathnameNode.length - 1] === "students") {
-      return (
-        <>
-          <Breadcrumb.Item>
-            <a href="/dashboard/manager">CMS MANAGER SYSTEM</a>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>Student List</Breadcrumb.Item>
-          <Breadcrumb.Item>
-            <a href="/dashboard/manager/student">Student List</a>
-          </Breadcrumb.Item>
-        </>
-      );
-    }
+        {getSubBreadcrumbNode(menuList, pathnameNode, subPath)}
+      </Breadcrumb>
+    );
   };
+
+  subMenu = subMenu.slice(-1);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -134,7 +191,7 @@ function tableComponent(props) {
           theme="dark"
           mode="inline"
           defaultOpenKeys={subMenu}
-          defaultSelectedKeys={[pathname]}
+          defaultSelectedKeys={[defaultSelectedKeys]}
         >
           {getMenuNodes(menuList)}
         </Menu>
@@ -153,19 +210,13 @@ function tableComponent(props) {
             <Back onClick={logoutHandler} />
           </Header>
         </Trigger>
-        <Content
-          className="site-layout-background"
-          style={{
-            margin: "24px 16px",
-            padding: 24,
-          }}
-        >
-          <Breadcrumb>{getBreadcrumbNode(menuList)}</Breadcrumb>
-          {props.children}
-        </Content>
+
+        {getBreadcrumbNode(menuList)}
+
+        <StyledContent>{props.children}</StyledContent>
       </Layout>
     </Layout>
   );
 }
 
-export default withRouter(tableComponent);
+export default withRouter(TableComponent);
