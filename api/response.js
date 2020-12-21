@@ -69,3 +69,19 @@ export const addItem = async (param) => {
     .catch((err) => console.log(err));
   return addResponse;
 };
+
+export const getStudentById = async (param) => {
+  const getStudentById = await axiosInstance
+    .get(creatUrl("/student", param))
+    .then((res) => res)
+    .catch((err) => console.log(err));
+  return getStudentById;
+};
+
+export const getCourses = async (param) => {
+  const getStudentById = await axiosInstance
+    .get(creatUrl("/courses", param))
+    .then((res) => res)
+    .catch((err) => console.log(err));
+  return getStudentById;
+};

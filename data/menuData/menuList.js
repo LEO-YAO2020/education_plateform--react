@@ -47,7 +47,14 @@ const menuList = [
   {
     title: "Courses",
     icon: <CopyOutlined />,
-    path: "/dashboard/manager/courses",
+    key: "courses",
+    children: [
+      {
+        title: "All Courses",
+        icon: <TeamOutlined />,
+        path: "/dashboard/manager/courses",
+      },
+    ],
   },
 ];
 const studentMenuList = [
