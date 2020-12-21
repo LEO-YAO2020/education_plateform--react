@@ -42,7 +42,12 @@ class StudentList extends React.Component {
       },
       render: (_value, record) => {
         return (
-          <Link href={`/dashboard/manager/students/${record.id}`}>
+          <Link
+            href={{
+              pathname: "/dashboard/manager/students/[id]",
+              query: { id: record.id },
+            }}
+          >
             {record.name}
           </Link>
         );

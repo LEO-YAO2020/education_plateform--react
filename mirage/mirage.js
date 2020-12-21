@@ -7,6 +7,8 @@ import courses from "../data/course.json";
 import courseTypes from "../data/course_type.json";
 import studentCourses from "../data/student_course.json";
 import studentTypes from "../data/student_type.json";
+import studentProfile from "../data/student_profile.json";
+import teachers from "../data/teacher.json";
 import { format } from "date-fns";
 
 export function makeServer({ environment = "test" } = {}) {
@@ -20,16 +22,27 @@ export function makeServer({ environment = "test" } = {}) {
         studentCourses: hasMany(),
         type: belongsTo("studentType"),
       }),
+      teacher: Model,
       courseType: Model,
-      course: Model,
+      course: Model.extend({
+        type: belongsTo("courseType"),
+        teacher: belongsTo("teacher"),
+      }),
       studentCourse: Model.extend({
         course: belongsTo(),
+      }),
+      studentProfile: Model.extend({
+        studentCourses: hasMany(),
+        type: belongsTo("studentType"),
       }),
     },
 
     seeds(server) {
       Users.forEach((element) => {
         server.create("user", element);
+      });
+      teachers.forEach((element) => {
+        server.create("teacher", element);
       });
       courseTypes.forEach((element) => {
         server.create("courseType", element);
@@ -45,6 +58,9 @@ export function makeServer({ environment = "test" } = {}) {
       });
       Students.forEach((element) => {
         server.create("student", element);
+      });
+      studentProfile.forEach((element) => {
+        server.create("studentProfile", element);
       });
     },
 
@@ -89,7 +105,7 @@ export function makeServer({ environment = "test" } = {}) {
         }
       });
 
-      this.post(basePath.logout, (schema, request) => {
+      this.post(basePath.logout, () => {
         return new Response(
           200,
           {},
@@ -121,10 +137,10 @@ export function makeServer({ environment = "test" } = {}) {
           if (studentCourses.length > 0) {
             studentCourses.models.map((model) => {
               const name = model.course.name;
-              // return { name, id: +model.id };
               courses.push({ name, id: +model.id });
             });
           }
+
           student.attrs.courses = courses;
           student.attrs.typeName = student.type.name;
 
@@ -214,13 +230,67 @@ export function makeServer({ environment = "test" } = {}) {
             200,
             {},
             {
-              code: 0,
+              code: 200,
               msg: "success",
               data: true,
             }
           );
         }
       );
+
+      this.get("/student", (schema, request) => {
+        const id = request.queryParams.id;
+        let student = schema.studentProfiles.findBy({ id: id });
+        const studentCourses = student.studentCourses;
+
+        let courses = [];
+
+        if (studentCourses.length > 0) {
+          studentCourses.models.map((model) => {
+            const name = model.course.name;
+            const typeName = model.course.type.name;
+            const ctime = model.ctime;
+            courses.push({ ctime, typeName, name, id: +model.id });
+          });
+        }
+        console.log("courses", courses);
+        student.attrs.courses = courses;
+        student.attrs.typeName = student.type.name;
+
+        if (student) {
+          return new Response(
+            200,
+            {},
+            {
+              code: 200,
+              data: student,
+            }
+          );
+        } else {
+          return new Response(
+            400,
+            {},
+            {
+              code: 400,
+              msg: "Fail",
+            }
+          );
+        }
+      });
+
+      this.get("/courses", (schema, request) => {
+        console.log("courses", courses);
+        const courses = schema.courses.all();
+        console.log("courses", courses);
+        return new Response(
+          200,
+          {},
+          {
+            code: 200,
+            courses,
+          }
+        );
+      });
     },
   });
 
