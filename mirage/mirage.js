@@ -253,7 +253,7 @@ export function makeServer({ environment = "test" } = {}) {
             courses.push({ ctime, typeName, name, id: +model.id });
           });
         }
-        console.log("courses", courses);
+
         student.attrs.courses = courses;
         student.attrs.typeName = student.type.name;
 
@@ -279,17 +279,38 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get("/courses", (schema, request) => {
-        console.log("courses", courses);
-        const courses = schema.courses.all();
-        console.log("courses", courses);
-        return new Response(
-          200,
-          {},
-          {
-            code: 200,
-            courses,
-          }
-        );
+        const { limit, page } = request.queryParams;
+        let courses = schema.courses.all().models;
+        const length = courses.length;
+
+        if (limit && page) {
+          courses = courses.slice(limit * (page - 1), page * limit);
+        }
+
+        courses.map((item) => {
+          item.attrs.teacher = item.teacher.name;
+        });
+
+        if (courses) {
+          return new Response(
+            200,
+            {},
+            {
+              code: 200,
+              courses,
+              length,
+            }
+          );
+        } else {
+          return new Response(
+            500,
+            {},
+            {
+              code: 500,
+              msg: "Fail",
+            }
+          );
+        }
       });
     },
   });

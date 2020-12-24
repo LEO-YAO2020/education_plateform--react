@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { Card, Col, Row, Tabs, Table, Tag } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 import styled from "styled-components";
+import Link from "next/link";
 
 const H3 = styled.h3`
   display: inline-block;
@@ -12,7 +13,14 @@ const H3 = styled.h3`
   font-size: 30px;
 `;
 
-const studentDetail = () => {
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+  return {
+    props: { id },
+  };
+}
+
+const studentDetail = (props) => {
   const { TabPane } = Tabs;
   const router = useRouter();
   const [info, setInfo] = useState([]);
@@ -44,6 +52,18 @@ const studentDetail = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      render: (_value, record) => {
+        return (
+          <Link
+            href={{
+              pathname: "#",
+              // query: { id: record.id },
+            }}
+          >
+            {record.name}
+          </Link>
+        );
+      },
     },
     {
       title: "Type",
@@ -58,7 +78,7 @@ const studentDetail = () => {
   ];
 
   useEffect(async () => {
-    const param = { id: router.query.id };
+    const param = { id: router.query.id || props.id };
     const response = await getStudentById(param);
     const studentInfo = response.data.data;
     const info = [
@@ -73,7 +93,7 @@ const studentDetail = () => {
       { label: "Gender", data: studentInfo.gender === 1 ? "Male" : "Female" },
       {
         label: "Member Period",
-        data: `${studentInfo.memberStartAt}-${studentInfo.memberEndAt}`,
+        data: `${studentInfo.memberStartAt} - ${studentInfo.memberEndAt}`,
       },
       { label: "Type", data: studentInfo.typeName },
       { label: "Create Time", data: studentInfo.ctime },
@@ -94,7 +114,7 @@ const studentDetail = () => {
           <Card
             title={
               <Avatar
-                src={data.avatar}
+                src={data?.avatar}
                 style={{
                   width: 100,
                   height: 100,
@@ -121,7 +141,7 @@ const studentDetail = () => {
             <Row gutter={[6, 16]}>
               <Col span={24} style={{ textAlign: "center" }}>
                 <b>Address</b>
-                <p>{data.address}</p>
+                <p>{data?.address}</p>
               </Col>
             </Row>
           </Card>
@@ -171,7 +191,7 @@ const studentDetail = () => {
                 <Row gutter={[6, 16]}>
                   <Col>
                     <H3>Description</H3>
-                    <p>{data.description}</p>
+                    <p>{data?.description}</p>
                   </Col>
                 </Row>
               </TabPane>

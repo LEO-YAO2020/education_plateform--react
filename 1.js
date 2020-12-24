@@ -76,25 +76,32 @@ const carData = [
     ],
   },
 ];
-function deepSearch(path, subNav) {
-  const target = subNav.slice(0, 1)[0];
-  const rest = subNav.slice(1);
+// function deepSearch(path, subNav) {
+//   const target = subNav.slice(0, 1)[0];
+//   const rest = subNav.slice(1);
 
-  if (target.path === path) {
-    return target;
+//   if (target.path === path) {
+//     return target;
+//   }
+//   if (target.subNav) {
+//     const result = deepSearch(path, target.subNav);
+//     if (result) {
+//       return result;
+//     }
+//   }
+//   if (rest.length) {
+//     const result = deepSearch(path, rest);
+//     if (result) {
+//       return result;
+//     }
+//   }
+//   return null;
+// }
+// console.log(deepSearch("country", carData));
+function fibonacc(num) {
+  if (num === 1 || num === 2) {
+    return 1;
   }
-  if (target.subNav) {
-    const result = deepSearch(path, target.subNav);
-    if (result) {
-      return result;
-    }
-  }
-  if (rest.length) {
-    const result = deepSearch(path, rest);
-    if (result) {
-      return result;
-    }
-  }
-  return null;
+  return fibonacc(num - 1) + fibonacc(num - 2);
 }
-console.log(deepSearch("country", carData));
+console.log("fibonacc", fibonacc(100));
