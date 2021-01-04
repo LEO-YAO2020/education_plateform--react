@@ -184,8 +184,6 @@ class StudentList extends React.Component {
   };
 
   inputChangeHandler = async (value) => {
-    console.log(value.target.value);
-
     this.value = value.target.value;
     const params = {
       page: 1,

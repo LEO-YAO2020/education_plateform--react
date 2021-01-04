@@ -25,26 +25,23 @@ const Logo = styled.div`
   font-family: monospace;
 `;
 
-const Back = styled(LogoutOutlined)`
-  float: right;
-  margin-top: 23px;
-  margin-right: 20px;
-  color: white;
+const HeaderIcon = styled.div`
   font-size: 18px;
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.3s;
   &:hover {
     color: #1890ff;
   }
 `;
 
-const Trigger = styled.div`
-  .trigger {
-    font-size: 18px;
-    padding: 0 24px;
-    color: white;
-  }
-  .trigger:hover {
-    color: #1890ff;
-  }
+const StyledLayoutHeader = styled(Header)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 `;
 
 const StyledContent = styled(Content)`
@@ -184,7 +181,7 @@ function TableComponent(props) {
   subMenu = subMenu.slice(-1);
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ height: "100vh" }}>
       <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
         <Logo>CMS</Logo>
         <Menu
@@ -196,20 +193,16 @@ function TableComponent(props) {
           {getMenuNodes(menuList)}
         </Menu>
       </Sider>
-      <Layout className="site-layout">
-        <Trigger>
-          <Header className="site-layout-background" style={{ padding: 0 }}>
-            {React.createElement(
-              collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
-              {
-                className: "trigger",
-                onClick: toggle,
-              }
-            )}
+      <Layout id="contentLayout">
+        <StyledLayoutHeader>
+          <HeaderIcon onClick={() => toggle(!collapsed)}>
+            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          </HeaderIcon>
 
-            <Back onClick={logoutHandler} />
-          </Header>
-        </Trigger>
+          <HeaderIcon>
+            <LogoutOutlined onClick={logoutHandler} />
+          </HeaderIcon>
+        </StyledLayoutHeader>
 
         {getBreadcrumbNode(menuList)}
 

@@ -3,13 +3,14 @@
     "presets":["next/babel"], 
     "plugins":[  
         [
-            "import",
+            "styled-components",
+          
             {
-                "libraryName":"antd",
-                "style":"css"  // 引入css
+                "ssr": true,
+                "displayName": true
             }
             
-        ],
-        "babel-plugin-styled-components"
+        ]
+
     ]
 }

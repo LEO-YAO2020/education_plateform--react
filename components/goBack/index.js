@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
 import { VerticalAlignTopOutlined } from "@ant-design/icons";
 
 const goBack = () => {

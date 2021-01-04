@@ -9,6 +9,8 @@ import studentCourses from "../data/student_course.json";
 import studentTypes from "../data/student_type.json";
 import studentProfile from "../data/student_profile.json";
 import teachers from "../data/teacher.json";
+import sales from "../data/sales.json";
+import schedules from "../data/schedule.json";
 import { format } from "date-fns";
 
 export function makeServer({ environment = "test" } = {}) {
@@ -24,9 +26,13 @@ export function makeServer({ environment = "test" } = {}) {
       }),
       teacher: Model,
       courseType: Model,
+      sale: Model,
+      schedule: Model,
       course: Model.extend({
         type: belongsTo("courseType"),
         teacher: belongsTo("teacher"),
+        sales: belongsTo("sale"),
+        schedule: belongsTo("schedule"),
       }),
       studentCourse: Model.extend({
         course: belongsTo(),
@@ -46,6 +52,12 @@ export function makeServer({ environment = "test" } = {}) {
       });
       courseTypes.forEach((element) => {
         server.create("courseType", element);
+      });
+      sales.forEach((element) => {
+        server.create("sale", element);
+      });
+      schedules.forEach((element) => {
+        server.create("schedule", element);
       });
       courses.forEach((element) => {
         server.create("course", element);
@@ -278,7 +290,7 @@ export function makeServer({ environment = "test" } = {}) {
         }
       });
 
-      this.get("/courses", (schema, request) => {
+      this.get(basePath.courses, (schema, request) => {
         const { limit, page } = request.queryParams;
         let courses = schema.courses.all().models;
         const length = courses.length;
@@ -290,7 +302,7 @@ export function makeServer({ environment = "test" } = {}) {
         courses.map((item) => {
           item.attrs.teacher = item.teacher.name;
         });
-
+        console.log(courses);
         if (courses) {
           return new Response(
             200,
@@ -299,6 +311,39 @@ export function makeServer({ environment = "test" } = {}) {
               code: 200,
               courses,
               length,
+            }
+          );
+        } else {
+          return new Response(
+            500,
+            {},
+            {
+              code: 500,
+              msg: "Fail",
+            }
+          );
+        }
+      });
+
+      this.get(basePath.course, (schema, request) => {
+        const id = request.queryParams;
+        let course = schema.courses.findBy(id);
+
+        course.attrs.sales = course.sales.attrs;
+        course.attrs.schedule = course.schedule.attrs;
+        course.attrs.teacher = course.teacher.name;
+        course.attrs.type = course.type.name;
+
+        console.log(course);
+
+        if (course) {
+          return new Response(
+            200,
+            {},
+            {
+              code: 0,
+              msg: "success",
+              course,
             }
           );
         } else {

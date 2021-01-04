@@ -3,7 +3,7 @@ import Layout from "../../../../components/layout/layout";
 import { getCourses } from "../../../../api/response";
 import { Card, List, Spin, Button } from "antd";
 import CourseDetail from "../../../../components/layout/listLayout";
-import InfiniteScroll from "react-infinite-scroller";
+import InfiniteScroll from "react-infinite-scroll-component";
 import Link from "next/link";
 import GoBack from "../../../../components/goBack";
 import styled from "styled-components";
@@ -18,7 +18,7 @@ const Courses = () => {
   const [hasMore, setHasMore] = useState(true);
   const [pagination, setPagination] = useState({ limit: 20, page: 1 });
 
-  const getMore = async () => {
+  useEffect(async () => {
     const AllCourses = await getCourses(pagination);
     const { courses, length } = AllCourses.data;
     const source = [...data, ...courses];
@@ -27,31 +27,27 @@ const Courses = () => {
       setHasMore(false);
       setData(source);
 
-      let listTable = document.querySelector(".container");
-      let div = document.createElement("div");
-
-      div.style.textAlign = "center";
-      div.innerHTML = "<span>No More Courses!!!</span>";
-      listTable.appendChild(div);
-
       return;
     }
-
     setData(source);
-    setPagination({ ...pagination, page: pagination.page + 1 });
-  };
+    console.log(data);
+  }, [pagination]);
 
   return (
     <Layout>
       <InfiniteScroll
+        next={() => setPagination({ ...pagination, page: pagination.page + 1 })}
         loader={
-          <SpinStyle key={Math.random(32)}>
+          <SpinStyle>
             <Spin size="large" />
           </SpinStyle>
         }
         hasMore={hasMore}
-        loadMore={getMore}
+        dataLength={data.length}
+        endMessage={<SpinStyle>No More Course!</SpinStyle>}
+        scrollableTarget="contentLayout"
         className="container"
+        style={{ overflow: "hidden" }}
       >
         <List
           grid={{
@@ -66,15 +62,18 @@ const Courses = () => {
           dataSource={data}
           renderItem={(item) => (
             <List.Item>
-              <Card cover={<img src={item.cover} />}>
-                <CourseDetail data={item}>
-                  <Link href="#">
-                    <Button type="primary" style={{ marginTop: "10px" }}>
-                      Read More
-                    </Button>
-                  </Link>
-                </CourseDetail>
-              </Card>
+              <CourseDetail data={item}>
+                <Link
+                  href={{
+                    pathname: "/dashboard/manager/courses/[id]",
+                    query: { id: item.id },
+                  }}
+                >
+                  <Button type="primary" style={{ marginTop: "10px" }}>
+                    Read More
+                  </Button>
+                </Link>
+              </CourseDetail>
             </List.Item>
           )}
         ></List>
