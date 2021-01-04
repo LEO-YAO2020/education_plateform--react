@@ -8,44 +8,40 @@ const axiosInstance = axios.create({
   responseType: "json",
 });
 
-export const login = async (loginType, email, password, remember) => {
-  const loginResponse = await axiosInstance
-    .post(creatUrl(basePath.login), {
-      email: email,
-      password: password,
-      type: loginType,
-      remember: remember,
-    })
+async function apiGetResponse(url, param = null) {
+  const aipResponse = await axiosInstance
+    .get(creatUrl(url, param))
     .then((res) => res)
-    .catch((err) => console.log(err));
+    .catch((err) => message.error(err));
+  return aipResponse;
+}
+async function apiPostResponse(url, param = null) {
+  const aipResponse = await axiosInstance
+    .post(creatUrl(url), param)
+    .then((res) => res)
+    .catch((err) => message.error(err));
+  return aipResponse;
+}
 
-  return loginResponse;
+export const login = async (loginType, email, password, remember) => {
+  return await apiPostResponse(basePath.login, {
+    email: email,
+    password: password,
+    type: loginType,
+    remember: remember,
+  });
 };
 
 export const getStudents = async (param) => {
-  const getStudentResponse = await axiosInstance
-    .get(creatUrl(basePath.student, param))
-    .then((res) => res)
-    .catch((err) => message.error(err));
-  return getStudentResponse;
+  return await apiGetResponse(basePath.student, param);
 };
 
 export const logout = async (type) => {
-  const logoutResponse = await axiosInstance
-    .post(creatUrl(basePath.logout), { type: type })
-    .then((res) => res)
-    .catch((err) => message.error(err));
-
-  return logoutResponse;
+  return await apiPostResponse(basePath.logout, { type: type });
 };
 
 export const search = async (param) => {
-  const searchResponse = await axiosInstance
-    .get(creatUrl(basePath.student, param))
-    .then((res) => res)
-    .catch((err) => message.error(err));
-
-  return searchResponse;
+  return await apiGetResponse(basePath.student, param);
 };
 
 export const deleteItem = async (param) => {
@@ -58,36 +54,21 @@ export const deleteItem = async (param) => {
 };
 
 export const editItem = async (param) => {
-  const editResponse = await axiosInstance
-    .post(creatUrl([basePath.student, subPath.update]), param)
-    .then((res) => res)
-    .catch((err) => message.error(err));
-
-  return editResponse;
+  return await apiPostResponse([basePath.student, subPath.update], param);
 };
 
 export const addItem = async (param) => {
-  const addResponse = await axiosInstance
-    .post(creatUrl([basePath.student, subPath.add]), param)
-    .then((res) => res)
-    .catch((err) => message.error(err));
-
-  return addResponse;
+  return await apiPostResponse([basePath.student, subPath.add], param);
 };
 
 export const getStudentById = async (param) => {
-  const getStudentById = await axiosInstance
-    .get(creatUrl("/student", param))
-    .then((res) => res)
-    .catch((err) => message.error(err));
-
-  return getStudentById;
+  return await apiGetResponse("/student", param);
 };
 
 export const getCourses = async (param) => {
-  const getCourses = await axiosInstance
-    .get(creatUrl("/courses", param))
-    .then((res) => res)
-    .catch((err) => message.error(err));
-  return getCourses;
+  return await apiGetResponse(basePath.courses, param);
+};
+
+export const getCourseDetail = async (param) => {
+  return await apiGetResponse(basePath.course, param);
 };

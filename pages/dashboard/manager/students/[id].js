@@ -141,7 +141,7 @@ const studentDetail = (props) => {
             <Row gutter={[6, 16]}>
               <Col span={24} style={{ textAlign: "center" }}>
                 <b>Address</b>
-                <p>{data?.address}</p>
+                <p>{data.address}</p>
               </Col>
             </Row>
           </Card>

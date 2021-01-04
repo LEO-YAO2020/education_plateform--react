@@ -2,6 +2,8 @@ export const basePath = {
   login: "login",
   logout: "logout",
   student: "students",
+  course: "course",
+  courses: "courses",
 };
 
 export const subPath = {
