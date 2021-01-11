@@ -4,12 +4,15 @@ export const basePath = {
   student: "students",
   course: "course",
   courses: "courses",
+  teachers: "teachers",
 };
 
 export const subPath = {
   add: "add",
   update: "update",
   delete: "delete",
+  code: "code",
+  type: "type",
 };
 
 export const creatUrl = (path, params) => {

@@ -72,3 +72,19 @@ export const getCourses = async (param) => {
 export const getCourseDetail = async (param) => {
   return await apiGetResponse(basePath.course, param);
 };
+
+export const getCourseCode = async (param) => {
+  return await apiGetResponse([basePath.course, subPath.code], param);
+};
+
+export const getCourseType = async (param) => {
+  return await apiGetResponse([basePath.course, subPath.type], param);
+};
+
+export const getTeachers = async (param) => {
+  return await apiGetResponse(basePath.teachers, param);
+};
+
+export const addCourse = async (param) => {
+  return await apiPostResponse([(basePath.course, subPath.add)], param);
+};

@@ -13,7 +13,6 @@ const StyledCol = styled(Col)`
 
   :nth-child(n) {
     border-right: none;
-    border-top: none;
     border-bottom: none;
   }
   :first-child {
@@ -53,51 +52,31 @@ const courseDetail = (props) => {
     "warning",
   ]);
   const weekDays = [
+    "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
     "Thursday",
     "Friday",
     "Saturday",
-    "Sunday",
   ];
-  const columns = [
-    {
-      title: "Sunday",
-      dataIndex: "Sunday",
-      key: "name",
-    },
-    {
-      title: "Monday",
-      dataIndex: "Monday",
-      key: "Monday",
-    },
-    {
-      title: "Tuesday",
-      dataIndex: "Tuesday",
-      key: "Tuesday",
-    },
-    {
-      title: "Wednesday",
-      dataIndex: "Wednesday",
-      key: "Wednesday",
-    },
-    {
-      title: "Thursday",
-      dataIndex: "Thursday",
-      key: "Thursday",
-    },
-    {
-      title: "Friday",
-      dataIndex: "Friday",
-      key: "Friday",
-    },
-    {
-      title: "Saturday",
-      dataIndex: "Saturday",
-      key: "Saturday",
-    },
-  ];
+
+  const columns = weekDays.map((weekDay) => {
+    return {
+      title: weekDay,
+      dataIndex: weekDay,
+      key: weekDay,
+      render: () => {
+        //const classTime = courseDetails.schedule.classTime;
+        const target = classTime.find((item) => item.includes(weekDay));
+
+        if (target) {
+          return target.split(" ")[1];
+        }
+        return null;
+      },
+    };
+  });
 
   useEffect(async () => {
     const param = { id: props.id };
@@ -123,54 +102,11 @@ const courseDetail = (props) => {
       },
     ];
 
-    let time = course.schedule.classTime.map((item) => {
-      return item.split(" ");
-    });
-    let timeArr = [];
-
-    for (let i = 0; i < time.length; i++) {
-      for (let j = 0; j < time[i].length - 1; j++) {
-        let weekDay = time[i][j];
-        let dayTime = time[i][j + 1];
-
-        switch (weekDay) {
-          case "Monday":
-            timeArr.push({ Monday: dayTime });
-
-            break;
-          case "Tuesday":
-            timeArr.push({ Tuesday: dayTime });
-
-            break;
-          case "Wednesday":
-            timeArr.push({ Wednesday: dayTime });
-
-            break;
-          case "Thursday":
-            timeArr.push({ Thursday: dayTime });
-
-            break;
-          case "Friday":
-            timeArr.push({ Friday: dayTime });
-
-            break;
-          case "Saturday":
-            timeArr.push({ Saturday: dayTime });
-
-            break;
-          case "Sunday":
-            timeArr.push({ Sunday: dayTime });
-
-            break;
-        }
-      }
-    }
-
     const id = course.schedule.chapters.findIndex((value) => {
       return value.id === course.schedule.current;
     });
-    console.log(JSON.stringify(timeArr));
-    setClassTime(timeArr);
+
+    setClassTime(course.schedule.classTime);
     setCourseDetails(course);
     setSales(sale);
     setProcess(id);
@@ -187,10 +123,14 @@ const courseDetail = (props) => {
               bodyStyle: { paddingBottom: 0 },
             }}
           >
-            <Row>
+            <Row
+              align="center"
+              justify="space-between"
+              style={{ margin: "0 -24px" }}
+            >
               {sales.map((item, index) => {
                 return (
-                  <StyledCol span={6} key={index}>
+                  <StyledCol span="6" key={index}>
                     <H1>{item.data}</H1>
                     <p>{item.label}</p>
                   </StyledCol>
@@ -228,7 +168,7 @@ const courseDetail = (props) => {
                 rowKey="id"
                 size="small"
                 columns={columns}
-                dataSource={classTime}
+                dataSource={new Array(1).fill({ id: 0 })}
                 pagination={false}
                 bordered
                 onRow={() => ({
@@ -253,7 +193,6 @@ const courseDetail = (props) => {
             <h3>Description</h3>
 
             <Row style={{ margin: "20px 0" }}>
-              {" "}
               Lorem ipsum dolor sit amet consectetur, adipisicing elit.
               Pariatur, voluptatem velit reprehenderit sequi, nam, corrupti eum
               natus exercitationem est illum quibusdam placeat excepturi aperiam
@@ -261,35 +200,37 @@ const courseDetail = (props) => {
             </Row>
 
             <h3>Chapter</h3>
-            <Collapse defaultActiveKey={[!!process ? process : 1]}>
-              {chapters.map((item, index) => {
-                return (
-                  <Panel
-                    header={item.name}
-                    key={index}
-                    extra={
-                      <Tag
-                        color={
-                          index === process
-                            ? "success"
+            {process && (
+              <Collapse defaultActiveKey={[process]}>
+                {chapters.map((item, index) => {
+                  return (
+                    <Panel
+                      header={item.name}
+                      key={index}
+                      extra={
+                        <Tag
+                          color={
+                            index === process
+                              ? "success"
+                              : index < process
+                              ? "default"
+                              : "warning"
+                          }
+                        >
+                          {index === process
+                            ? "Processing"
                             : index < process
-                            ? "default"
-                            : "warning"
-                        }
-                      >
-                        {index === process
-                          ? "Processing"
-                          : index < process
-                          ? "Finished"
-                          : "Not Started"}
-                      </Tag>
-                    }
-                  >
-                    <p>{item.content}</p>
-                  </Panel>
-                );
-              })}
-            </Collapse>
+                            ? "Finished"
+                            : "Not Started"}
+                        </Tag>
+                      }
+                    >
+                      <p>{item.content}</p>
+                    </Panel>
+                  );
+                })}
+              </Collapse>
+            )}
           </Card>
         </Col>
       </Row>

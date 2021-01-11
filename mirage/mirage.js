@@ -78,7 +78,10 @@ export function makeServer({ environment = "test" } = {}) {
 
     routes() {
       this.passthrough((request) => {
-        if (request.url === "/_next/static/development/_devPagesManifest.json")
+        if (
+          request.url === "/_next/static/development/_devPagesManifest.json" ||
+          request.url.includes("www.mocky.io")
+        )
           return true;
       });
       this.namespace = "api";
@@ -356,6 +359,107 @@ export function makeServer({ environment = "test" } = {}) {
             }
           );
         }
+      });
+
+      this.get(creatUrl([basePath.course, subPath.code]), (schema, request) => {
+        return new Response(
+          200,
+          {},
+          {
+            code: 0,
+            msg: "success",
+            data: "afsaca1312e1",
+          }
+        );
+      });
+
+      this.get(basePath.teachers, (schema, request) => {
+        const teachers = schema.teachers.all();
+
+        if (teachers) {
+          return new Response(
+            200,
+            {},
+            {
+              code: 0,
+              msg: "success",
+              teachers,
+            }
+          );
+        } else {
+          return new Response(
+            500,
+            {},
+            {
+              code: 500,
+              msg: "Fail",
+            }
+          );
+        }
+      });
+
+      this.get(creatUrl([basePath.course, subPath.type]), (schema, request) => {
+        const { value } = request.queryParams;
+        const courseType = schema.courseTypes.all();
+        console.log(value);
+        console.log(courseType);
+
+        if (courseType) {
+          return new Response(
+            200,
+            {},
+            {
+              code: 0,
+              msg: "success",
+              courseType,
+            }
+          );
+        } else {
+          return new Response(
+            500,
+            {},
+            {
+              code: 500,
+              msg: "Fail",
+            }
+          );
+        }
+      });
+
+      this.get(basePath.teachers, (schema, request) => {
+        const { value } = request.queryParams;
+        const all = schema.teachers.all().models;
+        let teachers = all.filter(
+          (item) => !value || item.name.toLowerCase().includes(value)
+        );
+        // const teachers = schema.teachers.where({
+        //   name:value
+        // });
+        //console.log(teachers);
+        return new Response(
+          200,
+          {},
+          {
+            code: 0,
+            msg: "success",
+            teachers,
+          }
+        );
+      });
+
+      this.post(creatUrl([basePath.course, subPath.add]), (schema, request) => {
+        const courseDetail = JSON.parse(request.requestBody);
+        console.log(courseDetail);
+        const data = schema.students.create({});
+
+        return new Response(
+          200,
+          {},
+          {
+            code: 0,
+            msg: "success",
+          }
+        );
       });
     },
   });
