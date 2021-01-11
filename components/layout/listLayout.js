@@ -57,7 +57,7 @@ const tableList = (props) => {
           </Col>
         </ListStyle>
 
-        <ListStyle gutter={gutter}>
+        <Row gutter={gutter}>
           <Col>
             <UserOutlined style={{ color: "blue" }} />
             &nbsp;Student Limit
@@ -65,7 +65,7 @@ const tableList = (props) => {
           <Col>
             <b>{data.maxStudents}</b>
           </Col>
-        </ListStyle>
+        </Row>
 
         {props.children}
       </Card>

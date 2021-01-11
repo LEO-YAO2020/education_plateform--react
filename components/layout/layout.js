@@ -11,6 +11,8 @@ import { logout } from "../../api/response";
 import SubMenu from "antd/lib/menu/SubMenu";
 import { routes } from "../../data/menuData/menuList";
 import Link from "next/link";
+import { el } from "date-fns/locale";
+import { functions } from "lodash";
 
 const { Header, Sider, Content } = Layout;
 
@@ -97,6 +99,31 @@ const getSubBreadcrumbNode = (menuList, pathnameNode, subPath) => {
             );
           }
         });
+      } else if (item.key === pathnameNode[pathnameNode.length - 2]) {
+        return item.children.map((subList) => {
+          if (subList.path === path) {
+            return (
+              <>
+                <Breadcrumb.Item key={path}>{item.title}</Breadcrumb.Item>
+
+                {pathnameNode[pathnameNode.length - 2] === item.key ? (
+                  result ? (
+                    <>
+                      <Breadcrumb.Item key={path}>
+                        <Link href={path}>{subList.title}</Link>
+                      </Breadcrumb.Item>
+                      <Breadcrumb.Item key={path}> Detail</Breadcrumb.Item>
+                    </>
+                  ) : (
+                    <Breadcrumb.Item key={path}>
+                      {subList.title}
+                    </Breadcrumb.Item>
+                  )
+                ) : null}
+              </>
+            );
+          }
+        });
       }
     }
   });
@@ -107,6 +134,9 @@ function TableComponent(props) {
   let defaultSelectedKeys = pathname;
   let subMenu = pathname.split("/");
 
+  if (subMenu.length > 4) {
+    subMenu = subMenu.slice(0, -1);
+  }
   if (isDetailPath(subMenu)) {
     defaultSelectedKeys = pathname.slice(0, -5);
     subMenu.pop();
