@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Layout from "../../../../components/layout/layout";
-import { Steps, Button, message, Row, Col } from "antd";
+import { Steps } from "antd";
 import CourseDetailForm from "../../../../components/addCourseForm/courseDetail";
 import CourseScheduleForm from "../../../../components/addCourseForm/courseSchedule";
 import Success from "../../../../components/addCourseForm/success";
@@ -11,7 +11,9 @@ const title = ["Course Detail", "Course Schedule", "Success"];
 
 const addCourse = () => {
   const [current, setCurrent] = useState(0);
-  const [avaNavigate, setAvaNavigate] = useState([0, 1, 2]);
+  const [avaNavigate, setAvaNavigate] = useState([0]);
+  const [courseId, setCourseId] = useState();
+  const [scheduleId, setScheduleId] = useState();
 
   const onChangeStep = () => {
     console.log(1111);
@@ -20,9 +22,19 @@ const addCourse = () => {
   };
 
   const content = [
-    { content: <CourseDetailForm onSuccess={onChangeStep} /> },
-    { content: <CourseScheduleForm onSuccess={onChangeStep} /> },
-    { content: <Success /> },
+    <CourseDetailForm
+      onSuccess={(course) => {
+        setCourseId(course.id);
+        setScheduleId(course.scheduleId);
+        onChangeStep();
+      }}
+    />,
+    <CourseScheduleForm
+      courseId={courseId}
+      scheduleId={scheduleId}
+      onSuccess={onChangeStep}
+    />,
+    <Success />,
   ];
 
   const onChange = (current) => {
@@ -43,8 +55,14 @@ const addCourse = () => {
           return <Step key={item} title={title[index]} />;
         })}
       </Steps>
-
-      <div>{content[current].content}</div>
+      {content.map((content, index) => (
+        <div
+          key={index}
+          style={{ display: index === current ? "block" : "none" }}
+        >
+          {content}
+        </div>
+      ))}
     </Layout>
   );
 };

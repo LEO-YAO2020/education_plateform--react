@@ -15,7 +15,7 @@ async function apiGetResponse(url, param = null) {
     .catch((err) => message.error(err));
   return aipResponse;
 }
-async function apiPostResponse(url, param = null) {
+async function apiPostResponse(url, param) {
   const aipResponse = await axiosInstance
     .post(creatUrl(url), param)
     .then((res) => res)
@@ -86,5 +86,13 @@ export const getTeachers = async (param) => {
 };
 
 export const addCourse = async (param) => {
-  return await apiPostResponse([(basePath.course, subPath.add)], param);
+  return await apiPostResponse([basePath.courses, subPath.add], param);
+};
+
+export const updateCourse = async (param) => {
+  return await apiPostResponse([basePath.courses, subPath.update], param);
+};
+
+export const addCourseSchedule = async (param) => {
+  return await apiPostResponse("/courses/schedule", param);
 };
