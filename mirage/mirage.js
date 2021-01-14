@@ -11,7 +11,8 @@ import studentProfile from "../data/student_profile.json";
 import teachers from "../data/teacher.json";
 import sales from "../data/sales.json";
 import schedules from "../data/schedule.json";
-import { format } from "date-fns";
+import { format, sub } from "date-fns";
+import { da } from "date-fns/locale";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -294,8 +295,14 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get(basePath.courses, (schema, request) => {
-        const { limit, page } = request.queryParams;
+        const { limit, page, name } = request.queryParams;
         let courses = schema.courses.all().models;
+        if (!!name) {
+          courses = courses.filter((item) =>
+            item.name.toLowerCase().includes(name.toLowerCase())
+          );
+        }
+
         const length = courses.length;
 
         if (limit && page) {
@@ -304,8 +311,9 @@ export function makeServer({ environment = "test" } = {}) {
 
         courses.map((item) => {
           item.attrs.teacher = item.teacher.name;
+          item.attrs.type = item.type.name;
         });
-        console.log(courses);
+
         if (courses) {
           return new Response(
             200,
@@ -362,13 +370,15 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get(creatUrl([basePath.course, subPath.code]), (schema, request) => {
+        const data = Math.random().toString(32).split(".")[1];
+
         return new Response(
           200,
           {},
           {
             code: 0,
             msg: "success",
-            data: "afsaca1312e1",
+            data,
           }
         );
       });
@@ -401,8 +411,6 @@ export function makeServer({ environment = "test" } = {}) {
       this.get(creatUrl([basePath.course, subPath.type]), (schema, request) => {
         const { value } = request.queryParams;
         const courseType = schema.courseTypes.all();
-        console.log(value);
-        console.log(courseType);
 
         if (courseType) {
           return new Response(
@@ -430,12 +438,11 @@ export function makeServer({ environment = "test" } = {}) {
         const { value } = request.queryParams;
         const all = schema.teachers.all().models;
         let teachers = all.filter(
-          (item) => !value || item.name.toLowerCase().includes(value)
+          (item) =>
+            !value ||
+            item.name.toLowerCase().includes(value.toLocaleLowerCase())
         );
-        // const teachers = schema.teachers.where({
-        //   name:value
-        // });
-        //console.log(teachers);
+
         return new Response(
           200,
           {},
@@ -447,19 +454,141 @@ export function makeServer({ environment = "test" } = {}) {
         );
       });
 
-      this.post(creatUrl([basePath.course, subPath.add]), (schema, request) => {
-        const courseDetail = JSON.parse(request.requestBody);
-        console.log(courseDetail);
-        const data = schema.students.create({});
+      this.post(
+        creatUrl([basePath.courses, subPath.add]),
+        (schema, request) => {
+          const body = JSON.parse(request.requestBody);
+          const {
+            name,
+            uid,
+            cover,
+            detail,
+            duration,
+            maxStudents,
+            price,
+            startTime,
+            typeId,
+            durationUnit,
+            teacherId,
+          } = body;
 
-        return new Response(
-          200,
-          {},
-          {
-            code: 0,
-            msg: "success",
+          const schedule = schema.schedules.create({
+            status: 0,
+            current: 0,
+            classTime: null,
+            chapters: null,
+          });
+
+          const sales = schema.sales.create({
+            batches: 0,
+            price,
+            earnings: 0,
+            paidAmount: 0,
+            studentAmount: 0,
+            paidIds: [],
+          });
+
+          const data = schema.db.courses.insert({
+            name,
+            uid,
+            detail,
+            startTime,
+            price,
+            maxStudents,
+            sales,
+            schedule,
+            star: 0,
+            status: 0,
+            duration,
+            durationUnit,
+            cover,
+            teacherId,
+            typeId,
+            ctime: format(new Date(), "yyyy-MM-dd hh:mm:ss"),
+          });
+          data.type = schema.courseTypes.findBy({ id: typeId }).name;
+          data.scheduleId = +schedule.id;
+
+          if (data) {
+            return new Response(
+              200,
+              {},
+              {
+                code: 0,
+                msg: "success",
+                data,
+              }
+            );
+          } else {
+            return new Response(
+              404,
+              {},
+              {
+                code: 404,
+                msg: "fail",
+              }
+            );
           }
-        );
+        }
+      );
+
+      this.post(creatUrl([basePath.courses, subPath.update]), (schema, req) => {
+        const { id, ...others } = JSON.parse(req.requestBody);
+        console.log(id);
+        const target = schema.courses.findBy({ id });
+
+        if (target) {
+          const data = target.update({
+            ...others,
+          });
+
+          data.attrs.typeName = data.type.name;
+
+          return new Response(200, {}, { msg: "success", code: 200, data });
+        } else {
+          return new Response(
+            400,
+            {},
+            { msg: `can\'t find course by id ${id} `, code: 400 }
+          );
+        }
+      });
+
+      this.post("/courses/schedule", (schema, req) => {
+        const body = JSON.parse(req.requestBody);
+        const { scheduleId, courseId } = body;
+        let target;
+
+        if (!!scheduleId || !!courseId) {
+          if (scheduleId) {
+            target = schema.schedules.findBy({ id: scheduleId });
+          } else {
+            target = schema.courses.findBy({ id: courseId }).schedule;
+          }
+          const { classTime, chapters } = body;
+
+          target.update({
+            current: 0,
+            status: 0,
+            chapters: chapters.map((item, index) => ({ ...item, id: index })),
+            classTime,
+          });
+
+          return new Response(
+            200,
+            {},
+            { msg: "success", code: 200, data: true }
+          );
+        } else {
+          return new Response(
+            400,
+            {},
+            {
+              msg: `can\'t find process by course ${courseId} or processId ${processId} `,
+              code: 400,
+            }
+          );
+        }
       });
     },
   });

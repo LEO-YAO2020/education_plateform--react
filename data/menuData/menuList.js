@@ -7,6 +7,7 @@ import {
   CopyOutlined,
   TeamOutlined,
   FileAddOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import Roles from "../../lib/role";
 
@@ -59,6 +60,11 @@ const menuList = [
         title: "Add Courses",
         icon: <FileAddOutlined />,
         path: "/dashboard/manager/courses/add-course",
+      },
+      {
+        title: "Edit Courses",
+        icon: <EditOutlined />,
+        path: "/dashboard/manager/courses/edit-course",
       },
     ],
   },
