@@ -9,10 +9,10 @@ import studentCourses from "../data/student_course.json";
 import studentTypes from "../data/student_type.json";
 import studentProfile from "../data/student_profile.json";
 import teachers from "../data/teacher.json";
+import teacherProfile from "../data/teacher_profile.json";
 import sales from "../data/sales.json";
 import schedules from "../data/schedule.json";
 import { format, sub } from "date-fns";
-import { da } from "date-fns/locale";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -25,7 +25,10 @@ export function makeServer({ environment = "test" } = {}) {
         studentCourses: hasMany(),
         type: belongsTo("studentType"),
       }),
-      teacher: Model,
+      teacherProfile: Model,
+      teacher: Model.extend({
+        profile: belongsTo("teacherProfile"),
+      }),
       courseType: Model,
       sale: Model,
       schedule: Model,
@@ -47,6 +50,9 @@ export function makeServer({ environment = "test" } = {}) {
     seeds(server) {
       Users.forEach((element) => {
         server.create("user", element);
+      });
+      teacherProfile.forEach((element) => {
+        server.create("teacherProfile", element);
       });
       teachers.forEach((element) => {
         server.create("teacher", element);
@@ -295,24 +301,38 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get(basePath.courses, (schema, request) => {
-        const { limit, page, name } = request.queryParams;
+        const { limit, page, name, code, type } = request.queryParams;
         let courses = schema.courses.all().models;
+
         if (!!name) {
           courses = courses.filter((item) =>
             item.name.toLowerCase().includes(name.toLowerCase())
           );
         }
+        if (!!code) {
+          courses = courses.filter((item) =>
+            item.uid.toLowerCase().includes(code.toLowerCase())
+          );
+          console.log(courses);
+        }
 
-        const length = courses.length;
-
-        if (limit && page) {
-          courses = courses.slice(limit * (page - 1), page * limit);
+        if (!!type) {
+          console.log(courses);
+          courses = courses.filter((item) =>
+            item.type.name.toLowerCase().includes(type.toLowerCase())
+          );
         }
 
         courses.map((item) => {
           item.attrs.teacher = item.teacher.name;
           item.attrs.type = item.type.name;
         });
+
+        const length = courses.length;
+
+        if (limit && page) {
+          courses = courses.slice(limit * (page - 1), page * limit);
+        }
 
         if (courses) {
           return new Response(
@@ -435,9 +455,11 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get(basePath.teachers, (schema, request) => {
-        const { value } = request.queryParams;
+        const { value, id } = request.queryParams;
+        let teachers;
+
         const all = schema.teachers.all().models;
-        let teachers = all.filter(
+        teachers = all.filter(
           (item) =>
             !value ||
             item.name.toLowerCase().includes(value.toLocaleLowerCase())
@@ -452,6 +474,45 @@ export function makeServer({ environment = "test" } = {}) {
             teachers,
           }
         );
+
+        //   const limit = request.queryParams.limit;
+        //   const page = request.queryParams.page;
+        //   let query = request.queryParams.query;
+        //   const all = schema.students.all();
+        //   let students = all.filter((item) => !query || item.name.includes(query))
+        //     .models;
+        //   const total = !query ? all.length : students.length;
+        //   let data = { total, students };
+
+        //   if (limit && page) {
+        //     const start = limit * (page - 1);
+
+        //     students = students.slice(start, start + limit);
+        //     data = { ...data, paginator: { limit, page, total } };
+        //   }
+
+        //   students = students.map((student) => {
+        //     const studentCourses = student.studentCourses;
+
+        //     let courses = [];
+        //     if (studentCourses.length > 0) {
+        //       studentCourses.models.map((model) => {
+        //         const name = model.course.name;
+        //         courses.push({ name, id: +model.id });
+        //       });
+        //     }
+
+        //     student.attrs.courses = courses;
+        //     student.attrs.typeName = student.type.name;
+
+        //     return student;
+        //   });
+        //   return new Response(
+        //     200,
+        //     {},
+        //     { data: { ...data, students }, msg: "success", code: 200 }
+        //   );
+        // });
       });
 
       this.post(
@@ -506,7 +567,8 @@ export function makeServer({ environment = "test" } = {}) {
             typeId,
             ctime: format(new Date(), "yyyy-MM-dd hh:mm:ss"),
           });
-          data.type = schema.courseTypes.findBy({ id: typeId }).name;
+
+          data.type = schema.courseTypes.findBy({ id: +typeId }).name;
           data.scheduleId = +schedule.id;
 
           if (data) {

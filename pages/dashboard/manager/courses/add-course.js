@@ -11,7 +11,7 @@ const title = ["Course Detail", "Course Schedule", "Success"];
 
 const addCourse = () => {
   const [current, setCurrent] = useState(0);
-  const [avaNavigate, setAvaNavigate] = useState([0]);
+  const [avaNavigate, setAvaNavigate] = useState([0, 1]);
   const [courseId, setCourseId] = useState();
   const [scheduleId, setScheduleId] = useState();
 
