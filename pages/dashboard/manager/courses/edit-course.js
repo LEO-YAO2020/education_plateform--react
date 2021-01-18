@@ -38,13 +38,13 @@ const editCourse = () => {
               onChange={(value) => setSearchBy(value)}
             >
               <Select.Option value="name">Name</Select.Option>
-              <Select.Option value="uid">Code</Select.Option>
+              <Select.Option value="code">Code</Select.Option>
               <Select.Option value="type">Category</Select.Option>
             </Select>
             <Select
               placeholder={`Search course by ${searchBy}`}
               allowClear
-              filterOption="false"
+              filterOption={false}
               notFoundContent={isUploading ? <Spin size="small" /> : null}
               showSearch
               onSearch={_.debounce(onSearch, 1000)}

@@ -96,3 +96,7 @@ export const updateCourse = async (param) => {
 export const addCourseSchedule = async (param) => {
   return await apiPostResponse("/courses/schedule", param);
 };
+
+export const updateCourseSchedule = async (param) => {
+  return await apiPostResponse("/courses/schedule", param);
+};

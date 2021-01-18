@@ -1,5 +1,5 @@
 import { makeServer } from "../mirage/mirage";
-import "../styles/globals.css";
+import "../styles/globals.less";
 
 if (process.env.NODE_ENV === "development") {
   makeServer({ environment: "development" });

@@ -9,7 +9,6 @@ import {
   Spin,
   InputNumber,
   message,
-  DatePicker,
   Modal,
 } from "antd";
 import React, { useEffect, useState } from "react";
@@ -23,9 +22,9 @@ import {
 import { InboxOutlined, DeleteOutlined } from "@ant-design/icons";
 import ImgCrop from "antd-img-crop";
 import styled from "styled-components";
-import { getTime, format } from "date-fns";
+import { getTime, format, getDate } from "date-fns";
 import moment from "moment";
-//import DatePicker from "../datePicker/index";
+import DatePicker from "../datePicker/index";
 
 const { Option } = Select;
 const UploadStyle = styled.div`
@@ -79,7 +78,6 @@ const courseDetailForm = (props) => {
   const [teacherSearch, setTeacherSearch] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [isUploading, setIsUploading] = useState();
-  const [initialValues, setInitialValues] = useState([]);
   const [preview, setPreview] = useState(null);
   const [isAdd, setIsAdd] = useState(true);
   const [courseId, setCourseId] = useState();
@@ -91,12 +89,10 @@ const courseDetailForm = (props) => {
       const { data } = courseCode.data;
       const { courseType } = courseTypes.data;
 
-      if (!!props.edit) {
-        setIsAdd(false);
-      }
-
       form.setFieldsValue({ uid: data });
       setType([...courseType.models]);
+    } else {
+      setIsAdd(false);
     }
   }, []);
 
@@ -104,13 +100,13 @@ const courseDetailForm = (props) => {
     if (!!course) {
       const values = {
         ...course,
-        typeId: course.typeId + "",
+        typeId: course.type,
         teacherId: course.teacher,
-        startTime: moment(course.startTime),
+        startTime: new Date(course.startTime),
         number: course.duration,
-        period: course.durationUnit,
+        period: String(course.durationUnit),
       };
-
+      setIsAdd(false);
       form.setFieldsValue(values);
 
       setFileList([{ name: "Cover Image", url: course.cover }]);
@@ -134,24 +130,36 @@ const courseDetailForm = (props) => {
       ...values,
       duration: +values.number,
       typeId: +values.typeId,
-      // !! FIX: HOW TO ADD CUSTOM DATAPICKER.JS
-      startTime: 11,
+
+      startTime: format(values.startTime, "yyy-MM-dd"),
       teacherId: +values.teacherId || +course.teacherId,
       durationUnit: +values.period,
     };
+    delete req.period;
 
     const response = isAdd
       ? await addCourse(req)
-      : await updateCourse({ ...req, id: courseId });
+      : await updateCourse({
+          ...req,
+          id: course.id,
+          typeId: course.typeId,
+          teacherId: course.teacherId,
+        });
 
     const { data } = response.data;
-    if (data) {
-      setIsAdd(false);
-      setCourseId(data.id);
-      props.onSuccess(data);
-    }
 
-    message.success("success");
+    if (isAdd) {
+      if (data) {
+        setIsAdd(false);
+        setCourseId(data.id);
+        props.onSuccess(data);
+        message.success("success");
+      }
+    } else {
+      if (data) {
+        message.success("success");
+      }
+    }
   };
 
   const onChange = ({ file, fileList: newFileList }) => {
@@ -213,21 +221,17 @@ const courseDetailForm = (props) => {
               <Select
                 placeholder="Select teacher"
                 allowClear
-                filterOption="false"
+                filterOption={false}
                 notFoundContent={teacherSearch ? <Spin size="small" /> : null}
                 showSearch
                 onSearch={async (value) => {
                   setTeacherSearch(true);
                   const teachers = await getTeachers({ value });
-                  console.log(teachers);
+
                   setTeacher(teachers.data.teachers);
                   setTeacherSearch(false);
                 }}
               >
-                {/**
-                 * !! FixMe:After search, there is no teacher name in Option when use id as value,
-                 */}
-
                 {teacher.map(({ id, name }) => {
                   return (
                     <Option value={id} key={id}>

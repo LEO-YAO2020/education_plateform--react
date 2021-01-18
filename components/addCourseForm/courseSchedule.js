@@ -1,18 +1,14 @@
-import {
-  Form,
-  Row,
-  Col,
-  Input,
-  Button,
-  message,
-  Select,
-  TimePicker,
-} from "antd";
+import { Form, Row, Col, Input, Button, message, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { getTime, format } from "date-fns";
-import { addCourseSchedule, getCourseDetail } from "../../api/response";
-import moment from "moment";
+import {
+  addCourseSchedule,
+  getCourseDetail,
+  updateCourseSchedule,
+} from "../../api/response";
+
+import TimePicker from "../timePicker/index";
 
 const { Option } = Select;
 
@@ -21,28 +17,38 @@ const courseScheduleForm = (props) => {
   const edit = props.edit;
   const [form] = Form.useForm();
   const [selectedWeekDays, setSelectedWeekDays] = useState([]);
-  const [index, setIndex] = useState(false);
 
   const onFinish = (values) => {
-    console.log(values);
     let { chapters, classTimes } = values;
-    classTimes = classTimes.map(({ weekDay, time }) => `${weekDay} 2020-2-2`);
+    classTimes = classTimes.map(
+      ({ weekday, time }) => `${weekday} ${format(time, "hh:mm:ss")}`
+    );
 
     const scheduleId = props.scheduleId;
     const courseId = props.courseId;
 
-    const response = addCourseSchedule({
-      chapters,
-      classTimes,
-      scheduleId,
-      courseId,
-    });
-    // const { class: origin, chapters } = values;
-    // const class = origin.map(
-    //   ({ weekday, time }) => `${weekday} ${format(time, "hh:mm:ss")}`
-    // );
-    // const req: ProcessRequest = { chapters, classTime, processId, courseId };
-    props.onSuccess();
+    if (edit && !!id) {
+      const response = updateCourseSchedule({
+        chapters,
+        classTimes,
+        scheduleId,
+        courseId,
+      });
+
+      if (response) {
+        message.success("Success");
+      }
+    } else {
+      const response = addCourseSchedule({
+        chapters,
+        classTimes,
+        scheduleId,
+        courseId,
+      });
+      if (response) {
+        props.onSuccess();
+      }
+    }
   };
   const weekDay = [
     "Monday",
@@ -54,14 +60,12 @@ const courseScheduleForm = (props) => {
     "Sunday",
   ];
 
-  let callBack = null;
-  let callBack2 = null;
   let selectWeekday = [];
 
   const updateDate = (value) => {
     console.log(value);
-    console.log(form.getFieldValue("class"));
-    form.getFieldValue("class").forEach((element) => {
+    console.log(form.getFieldValue("classTimes"));
+    form.getFieldValue("classTimes").forEach((element) => {
       if (typeof element != "undefined") {
         selectWeekday.push(element.weekDay);
       }
@@ -70,48 +74,27 @@ const courseScheduleForm = (props) => {
     setSelectedWeekDays([...selectWeekday]);
   };
 
-  // const deleteDate = (index) => {
-  //   console.log(form.getFieldValue());
-  //   console.log(index);
-  //   setSelectedWeekDays([selectedWeekDays.splice(index, 1)]);
-  // };
-
-  useEffect(() => {
-    callBack();
-    callBack2();
-  }, []);
+  const initialValues = {
+    chapters: [{ name: "", content: "" }],
+    classTimes: [{ weekDay: "", time: "" }],
+  };
 
   useEffect(async () => {
-    if (edit) {
+    if (edit && !!id) {
       const detail = await getCourseDetail({ id });
       const { schedule } = detail.data.course;
       console.log(schedule);
 
       let classTimes = schedule.classTime.map((item) => {
-        let time = moment(item.split(" ")[1]);
-        // time = { time: moment(item) };
+        // let time = moment(item.split(" ")[1]);
+        let time = item.split(" ")[1];
+        console.log(time);
+        time = new Date(`2020-11-11 ${time}`);
         let weekDay = item.split(" ")[0];
 
         return { weekDay, time };
       });
 
-      // let time = schedule.classTime.map((item) => {
-      //   return item.split(" ")[1];
-      // });
-      // let weekday = schedule.classTime.map((item) => {
-      //   return item.split(" ")[0];
-      // });
-      // time = time.map((item) => {
-      //   return { time: moment(item) };
-      // });
-      // weekday = weekday.map((item) => {
-      //   return { weekday: item };
-      // });
-      // console.log(time);
-      // console.log(weekday);
-      // let classTimes = [time, weekday];
-      // classTimes = classTimes.reduce((acc, cur) => [...acc, ...cur], []);
-      console.log(classTimes);
       form.setFieldsValue({
         chapters: schedule.chapters,
         classTimes: classTimes,
@@ -128,13 +111,13 @@ const courseScheduleForm = (props) => {
         style={{ marginTop: "20px" }}
         style={{ margin: "20px" }}
         onFinish={onFinish}
+        initialValues={initialValues}
       >
         <Row gutter={[20, 20]}>
           <Col span={12}>
             <h2>Chapters</h2>
             <Form.List name="chapters">
               {(fields, { add, remove }) => {
-                callBack = add;
                 return (
                   <>
                     {fields.map((field) => (
@@ -209,8 +192,6 @@ const courseScheduleForm = (props) => {
             <h2>Class Times</h2>
             <Form.List name="classTimes">
               {(fields, { add, remove }) => {
-                callBack2 = add;
-
                 return (
                   <>
                     {fields.map((field) => (
