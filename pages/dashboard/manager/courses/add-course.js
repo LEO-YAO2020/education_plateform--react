@@ -11,9 +11,10 @@ const title = ["Course Detail", "Course Schedule", "Success"];
 
 const addCourse = () => {
   const [current, setCurrent] = useState(0);
-  const [avaNavigate, setAvaNavigate] = useState([0, 1]);
+  const [avaNavigate, setAvaNavigate] = useState([0]);
   const [courseId, setCourseId] = useState();
   const [scheduleId, setScheduleId] = useState();
+  const [course, setCourse] = useState(null);
 
   const onChangeStep = () => {
     console.log(1111);
@@ -24,11 +25,14 @@ const addCourse = () => {
   const content = [
     <CourseDetailForm
       onSuccess={(course) => {
+        setCourse(course);
         setCourseId(course.id);
         setScheduleId(course.scheduleId);
         onChangeStep();
       }}
+      course={course}
     />,
+
     <CourseScheduleForm
       courseId={courseId}
       scheduleId={scheduleId}

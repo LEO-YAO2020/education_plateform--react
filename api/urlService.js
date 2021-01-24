@@ -5,6 +5,7 @@ export const basePath = {
   course: "course",
   courses: "courses",
   teachers: "teachers",
+  statistics: "statistics",
 };
 
 export const subPath = {
@@ -13,6 +14,9 @@ export const subPath = {
   delete: "delete",
   code: "code",
   type: "type",
+  overview: "overview",
+  student: "student",
+  teacher: "teacher",
 };
 
 export const creatUrl = (path, params) => {

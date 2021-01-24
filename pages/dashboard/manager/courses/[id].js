@@ -193,10 +193,7 @@ const courseDetail = (props) => {
             <h3>Description</h3>
 
             <Row style={{ margin: "20px 0" }}>
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-              Pariatur, voluptatem velit reprehenderit sequi, nam, corrupti eum
-              natus exercitationem est illum quibusdam placeat excepturi aperiam
-              accusantium voluptatibus incidunt assumenda iure at!
+              {courseDetails.profile.attrs.description}
             </Row>
 
             <h3>Chapter</h3>

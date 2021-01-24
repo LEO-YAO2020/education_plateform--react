@@ -5,6 +5,13 @@ import CourseScheduleForm from "../../../../components/addCourseForm/courseSched
 import { Input, Select, Spin, Row, Col, Tabs } from "antd";
 import { getCourses } from "../../../../api/response";
 import _ from "lodash";
+import styled from "styled-components";
+
+// const BorderStyled = styled.div`
+//   .ant-select-selector {
+//     border-right: none !important;
+//   }
+// `;
 
 const { TabPane } = Tabs;
 
@@ -41,6 +48,7 @@ const editCourse = () => {
               <Select.Option value="code">Code</Select.Option>
               <Select.Option value="type">Category</Select.Option>
             </Select>
+
             <Select
               placeholder={`Search course by ${searchBy}`}
               allowClear
@@ -52,7 +60,7 @@ const editCourse = () => {
                 const courseChoose = getCourseBySearch.find((item) => {
                   return item.id == id.key;
                 });
-                console.log(courseChoose);
+
                 setCourseDetail(courseChoose);
                 setCourseId(+courseChoose.id);
               }}
