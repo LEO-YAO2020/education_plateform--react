@@ -1,18 +1,19 @@
 import { belongsTo, createServer, hasMany, Model, Response } from "miragejs";
 import { message } from "antd";
 import { basePath, creatUrl, subPath } from "../api/urlService";
-import Students from "../data/student.json";
-import Users from "../data/user.json";
+import students from "../data/student.json";
+import users from "../data/user.json";
 import courses from "../data/course.json";
 import courseTypes from "../data/course_type.json";
 import studentCourses from "../data/student_course.json";
 import studentTypes from "../data/student_type.json";
-import studentProfile from "../data/student_profile.json";
+import studentProfile from "../data/student-profile.json";
 import teachers from "../data/teacher.json";
 import teacherProfile from "../data/teacher_profile.json";
 import sales from "../data/sales.json";
 import schedules from "../data/schedule.json";
-import { format, sub } from "date-fns";
+import { format, formatDistance, subMonths } from "date-fns";
+import uniq from "uniq";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -21,34 +22,41 @@ export function makeServer({ environment = "test" } = {}) {
     models: {
       user: Model,
       studentType: Model,
-      student: Model.extend({
-        studentCourses: hasMany(),
-        type: belongsTo("studentType"),
-      }),
+
       teacherProfile: Model,
       teacher: Model.extend({
         profile: belongsTo("teacherProfile"),
       }),
+
       courseType: Model,
       sale: Model,
       schedule: Model,
+
       course: Model.extend({
         type: belongsTo("courseType"),
         teacher: belongsTo("teacher"),
         sales: belongsTo("sale"),
         schedule: belongsTo("schedule"),
       }),
+
       studentCourse: Model.extend({
         course: belongsTo(),
       }),
+
       studentProfile: Model.extend({
         studentCourses: hasMany(),
         type: belongsTo("studentType"),
       }),
+
+      student: Model.extend({
+        studentCourses: hasMany(),
+        type: belongsTo("studentType"),
+        profile: belongsTo("studentProfile"),
+      }),
     },
 
     seeds(server) {
-      Users.forEach((element) => {
+      users.forEach((element) => {
         server.create("user", element);
       });
       teacherProfile.forEach((element) => {
@@ -75,11 +83,11 @@ export function makeServer({ environment = "test" } = {}) {
       studentTypes.forEach((element) => {
         server.create("studentType", element);
       });
-      Students.forEach((element) => {
-        server.create("student", element);
-      });
       studentProfile.forEach((element) => {
         server.create("studentProfile", element);
+      });
+      students.forEach((element) => {
+        server.create("student", element);
       });
     },
 
@@ -87,7 +95,8 @@ export function makeServer({ environment = "test" } = {}) {
       this.passthrough((request) => {
         if (
           request.url === "/_next/static/development/_devPagesManifest.json" ||
-          request.url.includes("www.mocky.io")
+          request.url.includes("www.mocky.io") ||
+          request.url.includes("code.highcharts.com")
         )
           return true;
       });
@@ -652,8 +661,265 @@ export function makeServer({ environment = "test" } = {}) {
           );
         }
       });
+
+      this.get(
+        creatUrl([basePath.statistics, subPath.overview]),
+        (schema, req) => {
+          const courses = schema.courses.all().models;
+          const teachers = schema.teachers.all().models;
+          const students = schema.students.all().models;
+
+          const courseTotal = courses.length;
+          const studentTotal = students.length;
+          const teacherTotal = teachers.length;
+          const lastMonthAddedCourses = courses.filter(
+            (item) => new Date(item.attrs.ctime) >= subMonths(new Date(), 1)
+          ).length;
+          const lastMonthAddedStudents = students.filter(
+            (item) => new Date(item.attrs.ctime) >= subMonths(new Date(), 1)
+          ).length;
+          const lastMonthAddedTeachers = teachers.filter(
+            (item) => new Date(item.attrs.ctime) >= subMonths(new Date(), 1)
+          ).length;
+          const studentMaleAmount = genderAmount(students, "male");
+          const studentFemaleAmount = genderAmount(students, "female");
+          const studentUnknownAmount = genderAmount(students, "unknown");
+
+          const teacherMaleAmount = genderAmount(teachers, "male");
+          const teacherFemaleAmount = genderAmount(teachers, "female");
+          const teacherUnknownAmount = genderAmount(teachers, "unknown");
+
+          return new Response(
+            200,
+            {},
+            {
+              msg: "success",
+              code: 200,
+              data: {
+                student: {
+                  total: studentTotal,
+                  lastMonthAdded: lastMonthAddedStudents,
+                  gender: {
+                    male: studentMaleAmount.length,
+                    female: studentFemaleAmount.length,
+                    unknown: studentUnknownAmount.length,
+                  },
+                },
+                teacher: {
+                  total: teacherTotal,
+                  lastMonthAdded: lastMonthAddedTeachers,
+                  gender: {
+                    male: teacherMaleAmount.length,
+                    female: teacherFemaleAmount.length,
+                    unknown: teacherUnknownAmount.length,
+                  },
+                },
+                course: {
+                  total: courseTotal,
+                  lastMonthAdded: lastMonthAddedCourses,
+                },
+              },
+            }
+          );
+        }
+      );
+
+      this.get(
+        creatUrl([basePath.statistics, subPath.student]),
+        (schema, req) => {
+          //const userId = req.queryParams;
+          const students = schema.students.all().models;
+          const data = [];
+          const typeNameData = [];
+          const courseData = [];
+          const ctimeData = [];
+          const interestData = [];
+          const typeName = [];
+          const country = [];
+          const courses = [];
+          const ctime = [];
+          const interest = [];
+
+          students.map((item) => {
+            data.push(item.area);
+            typeNameData.push(item.type.attrs.name);
+            ctimeData.push(item.ctime.slice(0, 7));
+            item.studentCourses.models.map((courseName) => {
+              courseData.push(courseName.course.name);
+            });
+            item.profile.interest.map((item) => {
+              interestData.push(item);
+            });
+          });
+
+          data.sort();
+          typeNameData.sort();
+          courseData.sort();
+          ctimeData.sort();
+          interestData.sort();
+
+          sortData(data, country);
+          sortData(typeNameData, typeName);
+          sortData(courseData, courses);
+          sortData(ctimeData, ctime);
+          sortData(interestData, interest);
+
+          return new Response(
+            200,
+            {},
+            {
+              msg: "success",
+              code: 200,
+              data: {
+                country,
+                typeName,
+                courses,
+                ctime,
+                interest,
+              },
+            }
+          );
+        }
+      );
+
+      this.get(
+        creatUrl([basePath.statistics, subPath.teacher]),
+        (schema, req) => {
+          const teachers = schema.teachers.all().models;
+
+          const countryData = [];
+          const country = [];
+          const skillsData = [];
+          let skills = [];
+          const ctime = [];
+          const ctimeData = [];
+          const workExperienceData = [];
+          const workExperience = [];
+          teachers.map((item) => {
+            workExperienceData.push(item.profile.workExperience);
+
+            countryData.push(item.country);
+            ctimeData.push(item.ctime.slice(0, 7));
+            item.skills.map((skill) => {
+              skillsData.push(skill);
+            });
+          });
+
+          countryData.sort();
+          skillsData.sort(down);
+          ctimeData.sort(down);
+
+          sortData(countryData, country);
+          sortJsonData(skillsData, skills);
+          sortData(ctimeData, ctime);
+          //skills = uniq([...skills.map((item) => item.name)]);
+          skills = skills.reduce((acc, cur) => {
+            const { name, level } = cur;
+            if (acc.hasOwnProperty(name)) {
+              const target = acc[name].find((item) => item.level === level);
+
+              if (target) {
+                target.amount = target.amount + 1;
+              } else {
+                acc[name].push({ name: "level", level, amount: 1 });
+              }
+            } else {
+              acc[name] = [{ name: "level", level, amount: 1 }];
+            }
+            return acc;
+          }, {});
+
+          workExperienceData.map((item) => {
+            workExperience.push(getDuration(item));
+          });
+
+          return new Response(
+            200,
+            {},
+            {
+              msg: "success",
+              code: 200,
+              data: {
+                country,
+                skills,
+                ctime,
+                workExperience,
+              },
+            }
+          );
+        }
+      );
     },
   });
 
   return server;
+
+  function down(x, y) {
+    return x.name < y.name ? 1 : -1;
+  }
+
+  function sortJsonData(data, arr) {
+    let i = 0;
+    while (i < data.length) {
+      let count = 0;
+      for (let j = i; j < data.length; j++) {
+        if (data[i].name === data[j].name && data[i].level === data[j].level) {
+          count++;
+        }
+      }
+
+      arr.push({
+        name: data[i].name,
+        level: data[i].level,
+        amount: count,
+      });
+
+      i += count;
+    }
+  }
+
+  function sortData(data, arr) {
+    let i = 0;
+    while (i < data.length) {
+      let count = 0;
+      for (let j = i; j < data.length; j++) {
+        if (data[i] === data[j]) {
+          count++;
+        }
+      }
+      arr.push({
+        name: data[i],
+        amount: count,
+      });
+      i += count;
+    }
+  }
+
+  function getDuration(data, key = "startEnd") {
+    const dates = data.map((item) => item[key].split(" ")).flat();
+    const { max, min } = dates.reduce(
+      (acc, cur) => {
+        const date = new Date(cur).getTime();
+        const { max, min } = acc;
+
+        return { max: date > max ? date : max, min: date < min ? date : min };
+      },
+      { max: new Date().getTime(), min: new Date().getTime() }
+    );
+
+    return formatDistance(new Date(min), new Date(max));
+  }
+
+  function genderAmount(data, gender) {
+    if (gender === "male") {
+      return data.filter((item) => item.profile.attrs.gender === 1);
+    } else if (gender === "female") {
+      return data.filter((item) => item.profile.attrs.gender === 2);
+    } else {
+      return data.filter(
+        (item) =>
+          item.profile.attrs.gender != 2 && item.profile.attrs.gender != 1
+      );
+    }
+  }
 }

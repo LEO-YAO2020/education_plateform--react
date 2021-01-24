@@ -100,3 +100,21 @@ export const addCourseSchedule = async (param) => {
 export const updateCourseSchedule = async (param) => {
   return await apiPostResponse("/courses/schedule", param);
 };
+
+export const getTotalDataOverview = async (param) => {
+  return await apiGetResponse([basePath.statistics, subPath.overview], param);
+};
+
+export const getStudentOverviewData = async (param) => {
+  return await apiGetResponse([basePath.statistics, subPath.student], param);
+};
+
+export const getTeacherOverviewData = async (param) => {
+  return await apiGetResponse([basePath.statistics, subPath.teacher], param);
+};
+
+export const getWorld = async () => {
+  return await axios.get(
+    "https://code.highcharts.com/mapdata/custom/world-palestine-highres.geo.json"
+  );
+};

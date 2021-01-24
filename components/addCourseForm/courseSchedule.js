@@ -21,7 +21,7 @@ const courseScheduleForm = (props) => {
   const onFinish = (values) => {
     let { chapters, classTimes } = values;
     classTimes = classTimes.map(
-      ({ weekday, time }) => `${weekday} ${format(time, "hh:mm:ss")}`
+      ({ weekDay, time }) => `${weekDay} ${format(time, "hh:mm:ss")}`
     );
 
     const scheduleId = props.scheduleId;

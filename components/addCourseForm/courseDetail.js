@@ -71,7 +71,7 @@ export function getBase64(file) {
 
 const courseDetailForm = (props) => {
   const [form] = Form.useForm();
-  const course = props.courseFromEdit;
+  const course = props.courseFromEdit || props.course;
   const edit = props.edit;
   const [type, setType] = useState([]);
   const [teacher, setTeacher] = useState([]);
@@ -100,7 +100,7 @@ const courseDetailForm = (props) => {
     if (!!course) {
       const values = {
         ...course,
-        typeId: course.type,
+        typeId: course.type || course.typeId,
         teacherId: course.teacher,
         startTime: new Date(course.startTime),
         number: course.duration,
