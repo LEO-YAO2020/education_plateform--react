@@ -1,11 +1,44 @@
 import axios from "axios";
 import { basePath, subPath, creatUrl } from "./urlService";
 import { message } from "antd";
+import { AES } from "crypto-js";
 
 const axiosInstance = axios.create({
   withCredentials: true,
   baseURL: "http://localhost:3000/api",
   responseType: "json",
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  if (config.url.includes("login")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+      },
+    };
+  } else if (config.url.includes("schedule")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
+  } else if (config.url.includes("message")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
+  }
+
+  return config;
 });
 
 async function apiGetResponse(url, param = null) {
@@ -23,12 +56,19 @@ async function apiPostResponse(url, param) {
   return aipResponse;
 }
 
+async function apiPutResponse(url, param) {
+  const aipResponse = await axiosInstance
+    .put(creatUrl(url), param)
+    .then((res) => res)
+    .catch((err) => message.error(err));
+  return aipResponse;
+}
+
 export const login = async (loginType, email, password, remember) => {
   return await apiPostResponse(basePath.login, {
     email: email,
-    password: password,
-    type: loginType,
-    remember: remember,
+    password: AES.encrypt(password, "cms").toString(),
+    role: loginType,
   });
 };
 
@@ -111,6 +151,22 @@ export const getStudentOverviewData = async (param) => {
 
 export const getTeacherOverviewData = async (param) => {
   return await apiGetResponse([basePath.statistics, subPath.teacher], param);
+};
+
+export const getCoursesOverviewData = async (param) => {
+  return await apiGetResponse([basePath.statistics, subPath.course], param);
+};
+
+export const getStudentCoursesSchedule = async (param) => {
+  return await apiGetResponse("/class/schedule", param);
+};
+
+export const getMessage = async (param) => {
+  return await apiGetResponse("/message", param);
+};
+
+export const isMessageRead = async (param) => {
+  return await apiPutResponse("/message", param);
 };
 
 export const getWorld = async () => {

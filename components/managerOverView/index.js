@@ -6,12 +6,14 @@ import {
   getTotalDataOverview,
   getStudentOverviewData,
   getTeacherOverviewData,
+  getCoursesOverviewData,
 } from "../../api/response";
 import Role from "../../lib/role";
 import dynamic from "next/dynamic";
 import PieChart from "./pieChart";
 import LineChart from "./lineChart";
 import Histogram from "./histogram";
+import OverviewCard from "./overviewCard";
 
 const TitleIconStyle = styled(Col)`
   display: flex;
@@ -32,14 +34,19 @@ const RowStyle = styled(Row)`
 const DistributionWithNoSSR = dynamic(() => import("./mapChart"), {
   ssr: false,
 });
+const HeatMapWithNoSSR = dynamic(() => import("./heatMap"), {
+  ssr: false,
+});
+
 const { Option } = Select;
 
 const overViewCard = () => {
-  const [courseOverview, setCourseOverview] = useState({});
-  const [studentOverview, setStudentOverview] = useState({});
-  const [teacherOverview, setTeacherOverview] = useState({});
+  const [courseOverview, setCourseOverview] = useState();
+  const [studentOverview, setStudentOverview] = useState();
+  const [teacherOverview, setTeacherOverview] = useState();
   const [studentData, setStudentData] = useState();
   const [teacherData, setTeacherData] = useState();
+  const [coursesData, setCoursesData] = useState();
   const [selectType, setSelectType] = useState("studentType");
   const [distributionRole, setDistributionRole] = useState(Role.student);
 
@@ -47,12 +54,15 @@ const overViewCard = () => {
     const totalDataResponse = await getTotalDataOverview();
     const studentResponse = await getStudentOverviewData();
     const teacherResponse = await getTeacherOverviewData();
+    const coursesResponse = await getCoursesOverviewData();
 
     const totalDataResponseData = totalDataResponse.data.data;
     const studentResponseData = studentResponse.data.data;
     const teacherResponseData = teacherResponse.data.data;
     const { student, course, teacher } = totalDataResponseData;
+    const courseResponseData = coursesResponse.data.data;
 
+    setCoursesData(courseResponseData);
     setTeacherData(teacherResponseData);
     setStudentData(studentResponseData);
     setCourseOverview(course);
@@ -64,82 +74,19 @@ const overViewCard = () => {
     <>
       <Row gutter={[6, 16]}>
         <Col span={8}>
-          <Card style={{ backgroundColor: "#1890ff" }}>
-            <Row>
-              <TitleIconStyle span={6}>
-                <TeamOutlined />
-              </TitleIconStyle>
-              <Col span={18}>
-                <RowStyle>Total Students</RowStyle>
-                <RowStyle style={{ fontSize: "30px" }}>
-                  {studentOverview.total}
-                </RowStyle>
-                <RowStyle>
-                  <Progress
-                    percent={
-                      (studentOverview.lastMonthAdded / studentOverview.total) *
-                      100
-                    }
-                  />
-                </RowStyle>
-                <RowStyle style={{ fontWeight: "normal" }}>
-                  increase in 30 days
-                </RowStyle>
-              </Col>
-            </Row>
-          </Card>
+          {!!studentOverview && (
+            <OverviewCard color="#1890ff" data={studentOverview} />
+          )}
         </Col>
         <Col span={8}>
-          <Card style={{ backgroundColor: "#673bb7" }}>
-            <Row>
-              <TitleIconStyle span={6}>
-                <UserOutlined />
-              </TitleIconStyle>
-              <Col span={18}>
-                <RowStyle>Total Teachers</RowStyle>
-                <RowStyle style={{ fontSize: "30px" }}>
-                  {teacherOverview.total}
-                </RowStyle>
-                <RowStyle>
-                  <Progress
-                    percent={
-                      (teacherOverview.lastMonthAdded / teacherOverview.total) *
-                      100
-                    }
-                  />
-                </RowStyle>
-                <RowStyle style={{ fontWeight: "normal" }}>
-                  increase in 30 days
-                </RowStyle>
-              </Col>
-            </Row>
-          </Card>
+          {!!teacherOverview && (
+            <OverviewCard color="#673bb7" data={teacherOverview} />
+          )}
         </Col>
         <Col span={8}>
-          <Card style={{ backgroundColor: "#ffaa16" }}>
-            <Row>
-              <TitleIconStyle span={6}>
-                <BookOutlined />
-              </TitleIconStyle>
-              <Col span={18}>
-                <RowStyle>Total Courses</RowStyle>
-                <RowStyle style={{ fontSize: "30px" }}>
-                  {courseOverview.total}
-                </RowStyle>
-                <RowStyle>
-                  <Progress
-                    percent={Math.round(
-                      (courseOverview.lastMonthAdded / courseOverview.total) *
-                        100
-                    )}
-                  />
-                </RowStyle>
-                <RowStyle style={{ fontWeight: "normal" }}>
-                  increase in 30 days
-                </RowStyle>
-              </Col>
-            </Row>
-          </Card>
+          {!!courseOverview && (
+            <OverviewCard color="#ffaa16" data={courseOverview} />
+          )}
         </Col>
       </Row>
       <Row gutter={[6, 16]}>
@@ -186,19 +133,39 @@ const overViewCard = () => {
           >
             {!!studentData &&
               (selectType === "studentType" ? (
-                <PieChart data={studentData.typeName} type={selectType} />
+                <PieChart
+                  data={studentData.typeName}
+                  type={selectType}
+                  title={selectType}
+                />
+              ) : selectType === "courseType" ? (
+                <PieChart
+                  data={coursesData.typeName}
+                  type={selectType}
+                  title={selectType}
+                />
               ) : (
-                <Row gutter={[16, 16]}>
+                <Row>
                   <Col span={12}>
                     <PieChart
-                      data={studentOverview}
+                      data={Object.entries(studentOverview.gender).map(
+                        ([name, amount]) => ({
+                          name,
+                          amount,
+                        })
+                      )}
                       title="student gender"
                       type={selectType}
                     />
                   </Col>
                   <Col span={12}>
                     <PieChart
-                      data={teacherOverview}
+                      data={Object.entries(teacherOverview.gender).map(
+                        ([name, amount]) => ({
+                          name,
+                          amount,
+                        })
+                      )}
                       title="teacher gender"
                       type={selectType}
                     />
@@ -211,8 +178,8 @@ const overViewCard = () => {
       <Row gutter={[6, 16]}>
         <Col span={12}>
           <Card size="small" title="Student Increment">
-            {!!studentData && !!teacherData && (
-              <LineChart data={{ studentData, teacherData }} />
+            {!!studentData && !!teacherData && !!coursesData && (
+              <LineChart data={{ studentData, teacherData, coursesData }} />
             )}
           </Card>
         </Col>
@@ -220,6 +187,16 @@ const overViewCard = () => {
           <Card size="small" title="Language">
             {!!studentData && <Histogram data={{ studentData, teacherData }} />}
           </Card>
+        </Col>
+      </Row>
+      <Row>
+        <Col span={24}>
+          {!!coursesData && (
+            <HeatMapWithNoSSR
+              data={coursesData.classTime}
+              title="Course schedule per weekday"
+            />
+          )}
         </Col>
       </Row>
     </>

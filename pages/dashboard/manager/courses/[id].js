@@ -192,9 +192,7 @@ const courseDetail = (props) => {
 
             <h3>Description</h3>
 
-            <Row style={{ margin: "20px 0" }}>
-              {courseDetails.profile.attrs.description}
-            </Row>
+            <Row style={{ margin: "20px 0" }}>"xxxx"</Row>
 
             <h3>Chapter</h3>
             {process && (

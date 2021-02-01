@@ -22,12 +22,7 @@ const StyledTitle = styled(Title)`
 `;
 
 const onFinish = async (values) => {
-  const req = [
-    values.loginType,
-    values.email,
-    values.password,
-    values.remember,
-  ];
+  const req = [values.loginType, values.email, values.password];
   const loginResponse = await login(...req);
 
   if (!!loginResponse) {
@@ -37,7 +32,11 @@ const onFinish = async (values) => {
     );
     localStorage.setItem(
       "loginType",
-      JSON.stringify(loginResponse.data.data.loginType)
+      JSON.stringify(loginResponse.data.data.role)
+    );
+    localStorage.setItem(
+      "userId",
+      JSON.stringify(loginResponse.data.data.userId)
     );
     message.success(loginResponse.data.msg);
     Router.push("/dashboard");

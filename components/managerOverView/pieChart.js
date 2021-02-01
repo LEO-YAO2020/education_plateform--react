@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import HighchartsReact from "highcharts-react-official";
 import HighCharts from "highcharts/highmaps";
 
@@ -7,101 +7,81 @@ const pieChart = (props) => {
   let { title } = props;
 
   let { type } = props;
-  const [option, setOption] = useState();
+  const [option, setOption] = useState({
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: null,
+      plotShadow: false,
+      type: "pie",
+    },
+
+    accessibility: {
+      point: {
+        valueSuffix: "%",
+      },
+    },
+    tooltip: {
+      pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: "pointer",
+        dataLabels: {
+          enabled: true,
+          format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+        },
+      },
+    },
+    credits: {
+      enabled: false,
+    },
+    exporting: {
+      enabled: false,
+    },
+  });
+
+  const charRef = useRef(null);
+
+  useEffect(() => {
+    const { chart } = charRef.current;
+
+    setTimeout(() => {
+      chart.reflow();
+    }, 30);
+    return () => {};
+  }, []);
 
   useEffect(() => {
     if (!data) {
       return;
     }
 
-    if (!title) {
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) {
-        sum += data[i].amount;
-      }
-      data = data.map((item) => {
-        return {
-          name: `${item.name}: ${Math.round((item.amount / sum) * 100, 1)}%`,
-          y: Math.round((item.amount / sum) * 100),
-        };
-      });
-    } else {
-      data = [
-        {
-          name: `female: ${Math.round(
-            (data.gender.female / data.total) * 100,
-            1
-          )}%`,
-          y: Math.round((data.gender.female / data.total) * 100),
-        },
-        {
-          name: `male: ${Math.round(
-            (data.gender.male / data.total) * 100,
-            1
-          )}%`,
-          y: Math.round((data.gender.male / data.total) * 100),
-        },
-        {
-          name: `unknown: ${Math.round(
-            (data.gender.unknown / data.total) * 100,
-            1
-          )}%`,
-          y: Math.round((data.gender.unknown / data.total) * 100),
-        },
-      ];
-
-      console.log(data);
-    }
+    const source = data.map((item) => ({ name: item.name, y: item.amount }));
+    const titleText = title.split(/(?=[A-Z])/).join(" ");
 
     setOption({
-      chart: {
-        plotBackgroundColor: null,
-        plotBorderWidth: null,
-        plotShadow: false,
-        type: "pie",
-      },
       title: {
-        text: title ? title : type,
+        text: `<span style="text-transform: capitalize">${titleText}</span>`,
       },
-      accessibility: {
-        point: {
-          valueSuffix: "%",
-        },
-      },
-      tooltip: {
-        pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
-      },
-      plotOptions: {
-        pie: {
-          allowPointSelect: true,
-          cursor: "pointer",
-          dataLabels: {
-            enabled: true,
-            format: "<b>{point.name}</b>: {point.percentage:.1f} %",
-          },
-        },
-      },
-      credits: {
-        enabled: false,
-      },
-      exporting: {
-        enabled: false,
+      subtitle: {
+        text: `${titleText.split(" ")[0]} total: ${source.reduce(
+          (acc, cur) => acc + cur.y,
+          0
+        )}`,
+        align: "right",
       },
       series: [
         {
           name: "percentage",
           colorByPoint: true,
-          data: data,
+          data: source,
         },
       ],
     });
   }, [type]);
   return (
-    <HighchartsReact
-      options={option}
-      highcharts={HighCharts}
-      constructorType={"chart"}
-    />
+    <HighchartsReact options={option} highcharts={HighCharts} ref={charRef} />
   );
 };
 

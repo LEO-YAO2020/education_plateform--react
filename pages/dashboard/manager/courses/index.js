@@ -30,7 +30,6 @@ const Courses = () => {
       return;
     }
     setData(source);
-    console.log(data);
   }, [pagination]);
 
   return (
@@ -61,7 +60,7 @@ const Courses = () => {
           }}
           dataSource={data}
           renderItem={(item) => (
-            <List.Item>
+            <List.Item key={item.id}>
               <CourseDetail data={item}>
                 <Link
                   href={{
