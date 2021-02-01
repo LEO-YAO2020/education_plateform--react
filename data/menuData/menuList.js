@@ -8,6 +8,7 @@ import {
   TeamOutlined,
   FileAddOutlined,
   EditOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
 import Roles from "../../lib/role";
 
@@ -26,11 +27,6 @@ const menuList = [
         title: "Students List",
         icon: <UserOutlined />,
         path: "/dashboard/manager/students",
-      },
-      {
-        title: "Choose Student",
-        icon: <SelectOutlined />,
-        path: "",
       },
     ],
   },
@@ -78,7 +74,29 @@ const studentMenuList = [
   {
     title: "Courses",
     icon: <CopyOutlined />,
-    path: "/dashboard/student/courses",
+    key: "courses",
+    children: [
+      {
+        title: "All Courses",
+        icon: <TeamOutlined />,
+        path: "/dashboard/student/courses",
+      },
+      {
+        title: "My Courses",
+        icon: <TeamOutlined />,
+        path: "/dashboard/student/courses/myCourse",
+      },
+    ],
+  },
+  {
+    title: "Courses Schedule",
+    icon: <TeamOutlined />,
+    path: "/dashboard/student/schedule",
+  },
+  {
+    title: "Message",
+    icon: <CommentOutlined />,
+    path: "/dashboard/student/message",
   },
 ];
 const teacherMenuList = [

@@ -17,6 +17,7 @@ export const subPath = {
   overview: "overview",
   student: "student",
   teacher: "teacher",
+  course: "course",
 };
 
 export const creatUrl = (path, params) => {

@@ -1,14 +1,46 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import HighchartsReact from "highcharts-react-official";
 import HighCharts from "highcharts/highmaps";
 
 const lineChart = (props) => {
   const studentCtime = props.data.studentData.ctime;
   const teacherCtime = props.data.teacherData.ctime;
-  const [option, setOption] = useState(null);
+  const courseCtime = props.data.coursesData.ctime;
+
+  const [option, setOption] = useState({
+    title: null,
+    xAxis: {
+      categories: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+    },
+    yAxis: {
+      title: {
+        text: "New Students",
+      },
+    },
+    credits: {
+      enabled: false,
+    },
+    exporting: {
+      enabled: false,
+    },
+  });
 
   let studentArr = [];
   let teacherArr = [];
+  let courseArr = [];
 
   function sortData(ctime, arr) {
     let j = 0;
@@ -27,47 +59,23 @@ const lineChart = (props) => {
     }
   }
 
+  const charRef = useRef(null);
+
+  useEffect(() => {
+    const { chart } = charRef.current;
+
+    setTimeout(() => {
+      chart.reflow();
+    }, 30);
+    return () => {};
+  }, []);
+
   useEffect(() => {
     sortData(studentCtime, studentArr);
     sortData(teacherCtime, teacherArr);
+    sortData(courseCtime, courseArr);
 
     setOption({
-      chart: {
-        type: "line",
-      },
-      title: null,
-      xAxis: {
-        categories: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
-      },
-      yAxis: {
-        title: {
-          text: "New Students",
-        },
-      },
-      credits: {
-        enabled: false,
-      },
-      exporting: {
-        enabled: false,
-      },
-      plotOptions: {
-        line: {
-          enableMouseTracking: false,
-        },
-      },
       series: [
         {
           name: "Increment Amount",
@@ -77,15 +85,15 @@ const lineChart = (props) => {
           name: "Teacher",
           data: teacherArr,
         },
+        {
+          name: "Course",
+          data: courseArr,
+        },
       ],
     });
-  }, []);
+  }, [props.data]);
   return (
-    <HighchartsReact
-      options={option}
-      highcharts={HighCharts}
-      constructorType={"chart"}
-    />
+    <HighchartsReact options={option} highcharts={HighCharts} ref={charRef} />
   );
 };
 

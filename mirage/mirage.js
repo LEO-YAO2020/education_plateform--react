@@ -13,7 +13,8 @@ import teacherProfile from "../data/teacher_profile.json";
 import sales from "../data/sales.json";
 import schedules from "../data/schedule.json";
 import { format, formatDistance, subMonths } from "date-fns";
-import uniq from "uniq";
+import { groupBy } from "lodash";
+import { AES } from "crypto-js";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -96,7 +97,8 @@ export function makeServer({ environment = "test" } = {}) {
         if (
           request.url === "/_next/static/development/_devPagesManifest.json" ||
           request.url.includes("www.mocky.io") ||
-          request.url.includes("code.highcharts.com")
+          request.url.includes("code.highcharts.com") ||
+          request.url.includes("cms.chtoma.com")
         )
           return true;
       });
@@ -107,13 +109,11 @@ export function makeServer({ environment = "test" } = {}) {
 
         const user = schema.users.where({
           email: type.email,
-          password: type.password,
+          password: "123456",
           type: type.type,
         });
 
         if (user.length === 1) {
-          const token = type.email;
-
           return new Response(
             200,
             {},
@@ -121,8 +121,9 @@ export function makeServer({ environment = "test" } = {}) {
               code: 0,
               data: {
                 token:
-                  Math.random().toString(32).split(".")[1] + "-" + type.type,
+                  Math.random().toString(32).split(".")[1] + "~" + type.type,
                 loginType: type.type,
+                userId: +user.models[0].id,
               },
               msg: "login successful",
             }
@@ -374,9 +375,7 @@ export function makeServer({ environment = "test" } = {}) {
         course.attrs.teacher = course.teacher.name;
         course.attrs.type = course.type.name;
 
-        console.log(course);
-
-        if (course) {
+        if (!!course) {
           return new Response(
             200,
             {},
@@ -388,10 +387,10 @@ export function makeServer({ environment = "test" } = {}) {
           );
         } else {
           return new Response(
-            500,
+            400,
             {},
             {
-              code: 500,
+              code: 400,
               msg: "Fail",
             }
           );
@@ -408,6 +407,20 @@ export function makeServer({ environment = "test" } = {}) {
             code: 0,
             msg: "success",
             data,
+          }
+        );
+      });
+
+      this.get("/class/schedule", (schema, request) => {
+        const { userId } = request.queryParams;
+        const data = schema.users.findBy({ id: userId });
+        console.log(data);
+        return new Response(
+          200,
+          {},
+          {
+            code: 0,
+            msg: "success",
           }
         );
       });
@@ -812,7 +825,7 @@ export function makeServer({ environment = "test" } = {}) {
           sortData(countryData, country);
           sortJsonData(skillsData, skills);
           sortData(ctimeData, ctime);
-          //skills = uniq([...skills.map((item) => item.name)]);
+
           skills = skills.reduce((acc, cur) => {
             const { name, level } = cur;
             if (acc.hasOwnProperty(name)) {
@@ -844,6 +857,55 @@ export function makeServer({ environment = "test" } = {}) {
                 skills,
                 ctime,
                 workExperience,
+              },
+            }
+          );
+        }
+      );
+      this.get(
+        creatUrl([basePath.statistics, subPath.course]),
+        (schema, req) => {
+          const courses = schema.courses.all().models;
+
+          const typeNameData = [];
+          const typeName = [];
+          const ctime = [];
+          const ctimeData = [];
+          courses.map((item) => {
+            typeNameData.push(item.type.name);
+            ctimeData.push(item.ctime.slice(0, 7));
+          });
+          const classTime = Object.entries(
+            groupBy(
+              courses.map((course) => {
+                const classTime = course.schedule.classTime;
+                const typeName = course.type.name;
+
+                return { classTime, typeName, name: course.name };
+              }),
+              (item) => item.typeName
+            )
+          ).map(([key, value]) => ({
+            name: key,
+            amount: value.length,
+            courses: value,
+          }));
+          typeNameData.sort();
+          ctimeData.sort();
+
+          sortData(typeNameData, typeName);
+          sortData(ctimeData, ctime);
+
+          return new Response(
+            200,
+            {},
+            {
+              msg: "success",
+              code: 200,
+              data: {
+                typeName,
+                ctime,
+                classTime,
               },
             }
           );
