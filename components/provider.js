@@ -1,4 +1,4 @@
-import { createContext, Dispatch, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer } from "react";
 
 const store = {
   total: 0,
@@ -34,7 +34,7 @@ export function messageReducer(state, action) {
 export const MessageProvider = (props) => {
   const [state, dispatch] = useReducer(messageReducer, store);
   return (
-    <MessageContext.Provider value={{}}>
+    <MessageContext.Provider value={{ storeState: state, dispatch }}>
       {props.children}
     </MessageContext.Provider>
   );

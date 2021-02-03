@@ -89,7 +89,7 @@ const studentMenuList = [
     ],
   },
   {
-    title: "Courses Schedule",
+    title: "Schedule",
     icon: <TeamOutlined />,
     path: "/dashboard/student/schedule",
   },
