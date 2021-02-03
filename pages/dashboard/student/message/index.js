@@ -12,7 +12,11 @@ import {
   Card,
 } from "antd";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { getMessage, isMessageRead } from "../../../../api/response";
+import {
+  getMessage,
+  isMessageRead,
+  getMessageStatistic,
+} from "../../../../api/response";
 import {
   AlertOutlined,
   MessageOutlined,
@@ -29,6 +33,7 @@ const studentMessage = () => {
   const [type, setType] = useState(null);
   let timeArr = [];
   let source = [];
+  const { dispatch } = useMessageContext();
 
   useEffect(async () => {
     const userId = localStorage.getItem("userId");
@@ -58,6 +63,20 @@ const studentMessage = () => {
 
       return;
     }
+
+    const res = await getMessageStatistic({ userId });
+    const {
+      receive: { message, notification },
+    } = res.data.data;
+
+    dispatch({
+      type: "increment",
+      payload: { type: "message", count: message.unread },
+    });
+    dispatch({
+      type: "increment",
+      payload: { type: "notification", count: notification.unread },
+    });
 
     setData(source);
   }, [pagination, type]);
@@ -137,6 +156,11 @@ const studentMessage = () => {
                       }
 
                       setData([...data]);
+
+                      dispatch({
+                        type: "decrement",
+                        payload: { type, count: 1 },
+                      });
                     }}
                   >
                     <Row>

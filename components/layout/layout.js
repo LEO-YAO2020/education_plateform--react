@@ -15,6 +15,7 @@ import {
   Col,
   Avatar,
   Button,
+  notification,
 } from "antd";
 import {
   MenuUnfoldOutlined,
@@ -30,7 +31,13 @@ import { routes } from "../../data/menuData/menuList";
 import Link from "next/link";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { formatDistanceToNow } from "date-fns";
-import { getMessage, isMessageRead } from "../../api/response";
+import {
+  getMessage,
+  isMessageRead,
+  getMessageStatistic,
+  messageEvent,
+} from "../../api/response";
+import { useMessageContext } from "../provider";
 
 const { Header, Sider, Content } = Layout;
 const { TabPane } = Tabs;
@@ -191,14 +198,9 @@ const getSubBreadcrumbNode = (menuList, pathnameNode, subPath) => {
         });
       }
     } else {
-      return (
-        <>
-          {item.title.toLowerCase() ===
-          pathnameNode[pathnameNode.length - 1] ? (
-            <Breadcrumb.Item key={path}>{item.title}</Breadcrumb.Item>
-          ) : null}
-        </>
-      );
+      if (item.title.toLowerCase() === pathnameNode[pathnameNode.length - 1]) {
+        return <Breadcrumb.Item key={path}>{item.title}</Breadcrumb.Item>;
+      }
     }
   });
 };
@@ -239,6 +241,33 @@ function Messages(props) {
 
     setData(source);
   }, [pagination, props.type]);
+
+  useEffect(async () => {
+    if (props.clearAll && data && data.length) {
+      let ids = data
+        .filter((item) => {
+          return item.status === 0;
+        })
+        .map((item) => item.id);
+      if (ids.length) {
+        const res = await isMessageRead({
+          ids,
+          status: 1,
+        });
+
+        if (res.data.data) {
+          setData(data.map((item) => ({ ...item, status: 1 })));
+        }
+        if (props.onRead) {
+          props.onRead(ids.length);
+        }
+      } else {
+        message.error(`All of these ${type}s has been marked as read!`);
+      }
+
+      console.log(ids);
+    }
+  }, [props.clearAll]);
 
   return (
     <ListItemStyle>
@@ -283,11 +312,15 @@ function Messages(props) {
                       const target = data.find(
                         (element) => element.id === item.id
                       );
-                      console.log(target);
+
                       target.status = 1;
                     }
 
                     setData([...data]);
+
+                    if (props.onRead) {
+                      props.onRead(1);
+                    }
                   }}
                 >
                   <List.Item.Meta
@@ -308,14 +341,64 @@ function Messages(props) {
 export function MessagePanel() {
   const [activeType, setActiveType] = useState("notification");
   const types = ["notification", "message"];
+  const { storeState, dispatch } = useMessageContext();
+  const [clean, setClean] = useState({
+    notification: 0,
+    message: 0,
+  });
 
   let role;
-  useEffect(() => {
+  useEffect(async () => {
     role = localStorage.getItem("loginType");
+    const userId = localStorage.getItem("userId");
+    const res = await getMessageStatistic({ userId });
+
+    if (!!res) {
+      const {
+        receive: { message, notification },
+      } = res.data.data;
+
+      dispatch({
+        type: "increment",
+        payload: { type: "message", count: message.unread },
+      });
+      dispatch({
+        type: "increment",
+        payload: { type: "notification", count: notification.unread },
+      });
+    }
+
+    const sse = messageEvent(userId);
+
+    sse.onmessage = (e) => {
+      let data = e.data;
+      data = JSON.parse(data || {});
+
+      if (data.type != "heartbeat") {
+        const content = data.content;
+
+        if (content.type === "message") {
+          notification.info({
+            message: `You have a message from ${content.from.nickname}`,
+            description: content.content,
+          });
+        }
+
+        dispatch({
+          type: "increment",
+          payload: { type: content.type, count: 1 },
+        });
+      }
+    };
+
+    return () => {
+      sse.close();
+      dispatch({ type: "reset" });
+    };
   }, []);
 
   return (
-    <Badge count={1} size="small" offset={[-18, 0]}>
+    <Badge count={storeState.total} size="small" offset={[-18, 0]}>
       <HeaderIcon>
         <Dropdown
           trigger={["click"]}
@@ -347,8 +430,13 @@ export function MessagePanel() {
                       <Messages
                         type={type}
                         scrollTarget={type}
-                        clearAll={null}
-                        message={message}
+                        clearAll={clean[activeType]}
+                        onRead={(count) => {
+                          dispatch({
+                            type: "decrement",
+                            payload: { type, count },
+                          });
+                        }}
                       />
                     </MessageContainer>
                   </TabPane>
@@ -357,7 +445,13 @@ export function MessagePanel() {
 
               <Footer justify="space-between" align="middle">
                 <Col span={12}>
-                  <Button onClick={() => {}}>Mark all as read</Button>
+                  <Button
+                    onClick={() => {
+                      setClean({ ...clean, [activeType]: ++clean[activeType] });
+                    }}
+                  >
+                    Mark all as read
+                  </Button>
                 </Col>
                 <Col span={12}>
                   <Button>

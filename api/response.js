@@ -169,6 +169,19 @@ export const isMessageRead = async (param) => {
   return await apiPutResponse("/message", param);
 };
 
+export const getMessageStatistic = async (param) => {
+  return await apiGetResponse("/message/statistics", param);
+};
+
+export const messageEvent = (userId) => {
+  return new EventSource(
+    `https://cms.chtoma.com/api/message/subscribe?userId=${userId}`,
+    {
+      withCredentials: true,
+    }
+  );
+};
+
 export const getWorld = async () => {
   return await axios.get(
     "https://code.highcharts.com/mapdata/custom/world-palestine-highres.geo.json"
