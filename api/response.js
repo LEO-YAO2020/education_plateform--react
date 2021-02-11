@@ -36,6 +36,15 @@ axiosInstance.interceptors.request.use((config) => {
         Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
       },
     };
+  } else if (config.url.includes("statistics")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
   }
 
   return config;
@@ -171,6 +180,10 @@ export const isMessageRead = async (param) => {
 
 export const getMessageStatistic = async (param) => {
   return await apiGetResponse("/message/statistics", param);
+};
+
+export const getStudentStatistic = async (param) => {
+  return await apiGetResponse("/statistics/student", param);
 };
 
 export const messageEvent = (userId) => {

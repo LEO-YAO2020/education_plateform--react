@@ -198,7 +198,11 @@ const getSubBreadcrumbNode = (menuList, pathnameNode, subPath) => {
         });
       }
     } else {
-      if (item.title.toLowerCase() === pathnameNode[pathnameNode.length - 1]) {
+      if (
+        item.title.toLowerCase() === pathnameNode[pathnameNode.length - 1] ||
+        item.title.slice(7).toLowerCase() ===
+          pathnameNode[pathnameNode.length - 1]
+      ) {
         return <Breadcrumb.Item key={path}>{item.title}</Breadcrumb.Item>;
       }
     }
@@ -548,6 +552,7 @@ function TableComponent(props) {
             href={root}
           >{`CMS ${pathnameNode[2].toLocaleUpperCase()} SYSTEM`}</Link>
         </Breadcrumb.Item>
+        <Breadcrumb.Item>Overview</Breadcrumb.Item>
         {getSubBreadcrumbNode(menuList, pathnameNode, subPath)}
       </Breadcrumb>
     );
