@@ -75,7 +75,11 @@ const overViewCard = () => {
       <Row gutter={[6, 16]}>
         <Col span={8}>
           {!!studentOverview && (
-            <OverviewCard color="#1890ff" data={studentOverview} />
+            <OverviewCard
+              color="#1890ff"
+              data={studentOverview}
+              title="Student OverView"
+            />
           )}
         </Col>
         <Col span={8}>

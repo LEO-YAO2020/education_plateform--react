@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Layout from "../../../../components/layout/layout";
 import {
   Col,
   List,
@@ -12,44 +11,39 @@ import {
   Card,
 } from "antd";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { getMessage, isMessageRead } from "../../../../api/response";
+import { isMessageRead } from "../../api/response";
 import {
   AlertOutlined,
   MessageOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { useMessageContext } from "../../../../components/provider";
-import { includes } from "lodash";
+import { useMessageContext } from "../provider";
 
-const studentMessage = () => {
+const message = (props) => {
   const [data, setData] = useState([]);
   const [allData, setAllData] = useState([]);
   const [notificationData, setNotificationData] = useState([]);
   const [messageData, setMessageData] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [pagination, setPagination] = useState({ limit: 20, page: 1 });
-  const [type, setType] = useState(null);
-  const [isSame, setIsSame] = useState(false);
   let timeArr = [];
   let source = [];
+  let allLen = 0;
+  let notificationLen = 0;
+  let messageLen = 0;
 
   const { dispatch } = useMessageContext();
 
   useEffect(async () => {
-    const userId = localStorage.getItem("userId");
-    const res =
-      type === null
-        ? await getMessage({ ...pagination, userId })
-        : await getMessage({ ...pagination, userId, type });
-    const { messages } = res.data.data;
+    const { messages } = props;
 
     setHasMore(true);
 
-    if (type === "notification") {
+    if (props.type === "notification") {
       setNotificationData([...notificationData, ...messages]);
 
       source = [...notificationData, ...messages];
-    } else if (type === "message") {
+    } else if (props.type === "message") {
       setMessageData([...messageData, ...messages]);
 
       source = [...messageData, ...messages];
@@ -58,7 +52,7 @@ const studentMessage = () => {
       source = [...allData, ...messages];
     }
 
-    if (source.length >= res.data.data.total) {
+    if (source.length >= props.total) {
       setHasMore(false);
       setData(source);
 
@@ -66,36 +60,16 @@ const studentMessage = () => {
     }
 
     setData(source);
-  }, [pagination, type]);
+  }, [pagination, props.type]);
 
   return (
-    <Layout>
-      <Row>
-        <Col span={8}>
-          <Typography.Title level={2}>Recent Message</Typography.Title>
-        </Col>
-        <Col span={8} offset={8} style={{ textAlign: "right" }}>
-          <Select
-            defaultValue={null}
-            onSelect={(value) => {
-              setType(value);
-              setPagination({ ...pagination, page: 1 });
-            }}
-            style={{ minWidth: 100 }}
-          >
-            <Select.Option value={null}>All</Select.Option>
-            <Select.Option value="notification">Notification</Select.Option>
-            <Select.Option value="message">Message</Select.Option>
-          </Select>
-        </Col>
-      </Row>
+    <>
       <div
         id="msg-container"
         style={{ padding: "0 20px", overflowY: "scroll", maxHeight: "75vh" }}
       >
         <InfiniteScroll
           next={() => {
-            setIsSame(false);
             setPagination({ ...pagination, page: pagination.page + 1 });
           }}
           loader={
@@ -183,8 +157,8 @@ const studentMessage = () => {
           ></List>
         </InfiniteScroll>
       </div>
-    </Layout>
+    </>
   );
 };
 
-export default studentMessage;
+export default message;
