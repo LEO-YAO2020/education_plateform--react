@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../../../../components/layout/layout";
 import {
   Col,
@@ -29,7 +29,7 @@ const studentMessage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [pagination, setPagination] = useState({ limit: 20, page: 1 });
   const [type, setType] = useState(null);
-  const [isSame, setIsSame] = useState(false);
+
   let timeArr = [];
   let source = [];
 
@@ -41,19 +41,23 @@ const studentMessage = () => {
       type === null
         ? await getMessage({ ...pagination, userId })
         : await getMessage({ ...pagination, userId, type });
+
     const { messages } = res.data.data;
 
     setHasMore(true);
-
     if (type === "notification") {
+      setMessageData([]);
+      setAllData([]);
       setNotificationData([...notificationData, ...messages]);
-
       source = [...notificationData, ...messages];
     } else if (type === "message") {
+      setNotificationData([]);
+      setAllData([]);
       setMessageData([...messageData, ...messages]);
-
       source = [...messageData, ...messages];
     } else {
+      setNotificationData([]);
+      setMessageData([]);
       setAllData([...allData, ...messages]);
       source = [...allData, ...messages];
     }
@@ -66,7 +70,7 @@ const studentMessage = () => {
     }
 
     setData(source);
-  }, [pagination, type]);
+  }, [pagination]);
 
   return (
     <Layout>

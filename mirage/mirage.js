@@ -311,64 +311,107 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get(basePath.courses, (schema, request) => {
-        const { limit, page, name, code, type } = request.queryParams;
-        let courses = schema.courses.all().models;
+        const permission = getPermission();
+        const { limit, page, userId, ...others } = request.queryParams;
 
-        if (!!name) {
-          courses = courses.filter((item) =>
-            item.name.toLowerCase().includes(name.toLowerCase())
-          );
+        const conditions = Object.entries(others).filter(
+          ([key, value]) => !!value && key !== "own"
+        );
+
+        const filterData = (courses, sourceKey) => {
+          if (page && limit) {
+            courses = courses.slice((page - 1) * limit, page * limit);
+          }
+          if (conditions.length) {
+            courses = courses.filter((item) =>
+              conditions.every(([key, value]) => {
+                item = sourceKey ? item[sourceKey] : item;
+                if (key === "name") {
+                  return item.name.includes(value);
+                } else if (key === "type") {
+                  return item.type.name === value;
+                } else {
+                  return item[key] === value;
+                }
+              })
+            );
+          }
+
+          return courses;
+        };
+        const getAllCourses = () => {
+          let courses = schema.courses.all().models;
+          const total = courses.length;
+
+          courses = filterData(courses);
+
+          courses.forEach((item) => {
+            item.attrs.teacher = item.teacher.name;
+            item.attrs.type = item.type.name;
+          });
+
+          return { courses, total };
+        };
+
+        const getStudentOwnCourses = () => {
+          const user = schema.users.find(userId);
+
+          let courses = schema.students
+            .findBy({ email: user.attrs.email })
+            .studentCourses.models.map((item) => {
+              item.attrs.course = item.course;
+              item.attrs.course.attrs.type = item.course.type.name;
+
+              return item;
+            });
+
+          return {
+            total: courses.length,
+            courses: filterData(courses, "course"),
+          };
+        };
+
+        if (userId === 2) {
+          courses = getStudentOwnCourses();
         }
-        if (!!code) {
-          courses = courses.filter((item) =>
-            item.uid.toLowerCase().includes(code.toLowerCase())
-          );
-          console.log(courses);
+
+        let data = null;
+
+        if (permission === 1) {
+          const { own } = request.queryParams;
+
+          data = own ? getStudentOwnCourses() : getAllCourses();
         }
 
-        if (!!type) {
-          console.log(courses);
-          courses = courses.filter((item) =>
-            item.type.name.toLowerCase().includes(type.toLowerCase())
-          );
+        if (permission === 2) {
+          const user = schema.users.find(userId);
+          const teacher = schema.teachers.findBy({ email: user.email });
+          const courses = schema.courses.where({ teacherId: teacher.id })
+            .models;
+
+          courses.forEach((item) => {
+            item.attrs.teacher = item.teacher.name;
+            item.attrs.type = item.type.name;
+          });
+
+          data = { total: courses.length, courses: filterData(courses) };
         }
 
-        courses.map((item) => {
-          item.attrs.teacher = item.teacher.name;
-          item.attrs.type = item.type.name;
-        });
-
-        const length = courses.length;
-
-        if (limit && page) {
-          courses = courses.slice(limit * (page - 1), page * limit);
+        if (permission === 9) {
+          data = getAllCourses();
         }
 
-        if (courses) {
-          return new Response(
-            200,
-            {},
-            {
-              code: 200,
-              courses,
-              length,
-            }
-          );
+        if (data) {
+          return new Response(200, {}, { msg: "success", code: 200, data });
         } else {
-          return new Response(
-            500,
-            {},
-            {
-              code: 500,
-              msg: "Fail",
-            }
-          );
+          return new Response(500, {}, { msg: "server error", code: 500 });
         }
       });
 
       this.get(basePath.course, (schema, request) => {
-        const id = request.queryParams;
-        let course = schema.courses.findBy(id);
+        const { id } = request.queryParams;
+        console.log(id);
+        let course = schema.courses.findBy({ id });
 
         course.attrs.sales = course.sales.attrs;
         course.attrs.schedule = course.schedule.attrs;
@@ -970,6 +1013,21 @@ export function makeServer({ environment = "test" } = {}) {
     );
 
     return formatDistance(new Date(min), new Date(max));
+  }
+
+  function getPermission() {
+    let permission = localStorage.getItem("loginType");
+    permission = permission.substr(1, permission.length - 2);
+    switch (permission) {
+      case "student":
+        return 1;
+      case "teacher":
+        return 2;
+      case "manager":
+        return 9;
+      default:
+        return 0;
+    }
   }
 
   function genderAmount(data, gender) {

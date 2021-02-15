@@ -84,7 +84,7 @@ const studentMenuList = [
       {
         title: "My Courses",
         icon: <TeamOutlined />,
-        path: "/dashboard/student/courses/myCourse",
+        path: "/dashboard/student/courses/own",
       },
     ],
   },

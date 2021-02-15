@@ -38,7 +38,7 @@ const overViewCard = (props) => {
   const [pending, setPending] = useState();
   const [action, setAction] = useState();
   const [done, setDone] = useState();
-  console.log(data);
+
   useEffect(() => {
     if (!studentOverView) {
       return;
