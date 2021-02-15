@@ -16,11 +16,15 @@ const SpinStyle = styled.div`
 const Courses = () => {
   const [data, setData] = useState([]);
   const [hasMore, setHasMore] = useState(true);
+  const [type, setType] = useState();
   const [pagination, setPagination] = useState({ limit: 20, page: 1 });
 
   useEffect(async () => {
+    let type = localStorage.getItem("loginType");
+    type = type.substr(1, type.length - 2);
     const AllCourses = await getCourses(pagination);
-    const { courses, length } = AllCourses.data;
+
+    const { courses, length } = AllCourses.data.data;
     const source = [...data, ...courses];
 
     if (source.length >= length) {
@@ -30,6 +34,7 @@ const Courses = () => {
       return;
     }
     setData(source);
+    setType(type);
   }, [pagination]);
 
   return (
@@ -62,12 +67,7 @@ const Courses = () => {
           renderItem={(item) => (
             <List.Item key={item.id}>
               <CourseDetail data={item}>
-                <Link
-                  href={{
-                    pathname: "/dashboard/manager/courses/[id]",
-                    query: { id: item.id },
-                  }}
-                >
+                <Link href={`/dashboard/${type}/courses/${item.id}`} passHref>
                   <Button type="primary" style={{ marginTop: "10px" }}>
                     Read More
                   </Button>

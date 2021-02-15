@@ -1,14 +1,14 @@
-[
+[  {
+    "email": "teacher@admin.com",
+    "password": "123456",
+    "type": "teacher"
+  },
   {
     "email": "student@admin.com",
     "password": "123456",
     "type": "student"
   },
-  {
-    "email": "teacher@admin.com",
-    "password": "123456",
-    "type": "teacher"
-  },
+
   {
     "email": "manager@admin.com",
     "password": "123456",

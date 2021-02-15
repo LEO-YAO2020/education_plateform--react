@@ -31,8 +31,6 @@ const editCourse = () => {
     const course = await getCourses({ [searchBy]: value });
     const { courses } = course.data;
     setGetCourseBySearch(courses);
-
-    console.log(courses);
   }
 
   return (

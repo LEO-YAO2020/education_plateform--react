@@ -38,6 +38,7 @@ import {
   messageEvent,
 } from "../../api/response";
 import { useMessageContext } from "../provider";
+import role from "../../lib/role";
 
 const { Header, Sider, Content } = Layout;
 const { TabPane } = Tabs;
@@ -544,7 +545,11 @@ function TableComponent(props) {
     const pathnameNode = pathname.split("/");
     const root = pathnameNode.slice(0, 3).join("/");
     const subPath = pathnameNode.slice(0).join("/");
-
+    const type = pathnameNode[pathnameNode.length - 1];
+    let isOverview = false;
+    if (type === "student" || type === "teacher" || type === "manager") {
+      isOverview = true;
+    }
     return (
       <Breadcrumb style={{ margin: "10px 16px" }}>
         <Breadcrumb.Item>
@@ -552,7 +557,7 @@ function TableComponent(props) {
             href={root}
           >{`CMS ${pathnameNode[2].toLocaleUpperCase()} SYSTEM`}</Link>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>Overview</Breadcrumb.Item>
+        {isOverview ? <Breadcrumb.Item>Overview</Breadcrumb.Item> : null}
         {getSubBreadcrumbNode(menuList, pathnameNode, subPath)}
       </Breadcrumb>
     );

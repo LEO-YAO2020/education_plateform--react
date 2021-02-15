@@ -4,6 +4,7 @@ import Layout from "../../../../components/layout/layout";
 import { getCourseDetail } from "../../../../api/response";
 import { Badge, Card, Col, Collapse, Row, Steps, Table, Tag } from "antd";
 import styled from "styled-components";
+import { useRouter } from "next/router";
 
 const { Step } = Steps;
 const { Panel } = Collapse;
@@ -39,6 +40,7 @@ export async function getServerSideProps(context) {
 }
 
 const courseDetail = (props) => {
+  const router = useRouter();
   const [courseDetails, setCourseDetails] = useState({});
   const [sales, setSales] = useState([]);
   const [process, setProcess] = useState();
@@ -79,10 +81,11 @@ const courseDetail = (props) => {
   });
 
   useEffect(async () => {
-    const param = { id: props.id };
-    const courseDetail = await getCourseDetail(param);
+    const param = +router.query.id || props.id;
+    const courseDetail = await getCourseDetail({ id: param });
     const { course } = courseDetail.data;
     const courseSale = course.sales;
+
     const sale = [
       {
         label: "Price",

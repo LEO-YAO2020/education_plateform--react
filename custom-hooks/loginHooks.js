@@ -5,7 +5,7 @@ export const useLoginType = () => {
   useEffect(() => {
     if (!!localStorage.getItem("loginType")) {
       let type = localStorage.getItem("loginType");
-      // /^\"$/
+
       type = type.substr(1, type.length - 2);
       Router.push(`/dashboard/${type}`, undefined, { shallow: true });
     }
