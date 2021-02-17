@@ -78,18 +78,26 @@ const overViewCard = () => {
             <OverviewCard
               color="#1890ff"
               data={studentOverview}
-              title="Student OverView"
+              title="TOTAL STUDENTS"
             />
           )}
         </Col>
         <Col span={8}>
           {!!teacherOverview && (
-            <OverviewCard color="#673bb7" data={teacherOverview} />
+            <OverviewCard
+              color="#673bb7"
+              data={teacherOverview}
+              title="TOTAL TEACHERS"
+            />
           )}
         </Col>
         <Col span={8}>
           {!!courseOverview && (
-            <OverviewCard color="#ffaa16" data={courseOverview} />
+            <OverviewCard
+              color="#ffaa16"
+              data={courseOverview}
+              title="TOTAL COURSES"
+            />
           )}
         </Col>
       </Row>
@@ -138,13 +146,13 @@ const overViewCard = () => {
             {!!studentData &&
               (selectType === "studentType" ? (
                 <PieChart
-                  data={studentData.typeName}
+                  data={studentData.type}
                   type={selectType}
                   title={selectType}
                 />
               ) : selectType === "courseType" ? (
                 <PieChart
-                  data={coursesData.typeName}
+                  data={coursesData.type}
                   type={selectType}
                   title={selectType}
                 />
@@ -181,10 +189,8 @@ const overViewCard = () => {
       </Row>
       <Row gutter={[6, 16]}>
         <Col span={12}>
-          <Card size="small" title="Student Increment">
-            {!!studentData && !!teacherData && !!coursesData && (
-              <LineChart data={{ studentData, teacherData, coursesData }} />
-            )}
+          <Card size="small" title="Increment">
+            {!!coursesData && <LineChart data={{ coursesData }} />}
           </Card>
         </Col>
         <Col span={12}>
