@@ -3,10 +3,8 @@ import HighchartsReact from "highcharts-react-official";
 import HighCharts from "highcharts/highmaps";
 
 const lineChart = (props) => {
-  const studentCtime = props.data.studentData.ctime;
-  const teacherCtime = props.data.teacherData.ctime;
-  const courseCtime = props.data.coursesData.ctime;
-
+  const courseCtime = props.data.coursesData.createdAt;
+  console.log(props);
   const [option, setOption] = useState({
     title: null,
     xAxis: {
@@ -27,7 +25,7 @@ const lineChart = (props) => {
     },
     yAxis: {
       title: {
-        text: "New Students",
+        text: "Increment",
       },
     },
     credits: {
@@ -38,53 +36,31 @@ const lineChart = (props) => {
     },
   });
 
-  let studentArr = [];
-  let teacherArr = [];
-  let courseArr = [];
-
-  function sortData(ctime, arr) {
-    let j = 0;
-
-    let data = ctime.map((item) => {
-      return { time: parseInt(item.name.slice(-2)), amount: item.amount };
-    });
-
-    for (let i = 1; i <= 12; i++) {
-      if (data[j]?.time === i) {
-        arr.push(data[j].amount);
-        j++;
-      } else {
-        arr.push(0);
-      }
-    }
-  }
-
   const charRef = useRef(null);
 
   useEffect(() => {
     const { chart } = charRef.current;
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       chart.reflow();
     }, 30);
-    return () => {};
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
-    sortData(studentCtime, studentArr);
-    sortData(teacherCtime, teacherArr);
-    sortData(courseCtime, courseArr);
+    let courseArr = new Array(12).fill(0).map((_, index) => {
+      const month = index + 1;
+      const name = month > 9 ? month + "" : "0" + month;
+      const target = courseCtime.find(
+        (item) => item.name.split("-")[1] === name
+      );
 
+      return (target && target.amount) || 0;
+    });
     setOption({
       series: [
-        {
-          name: "Increment Amount",
-          data: studentArr,
-        },
-        {
-          name: "Teacher",
-          data: teacherArr,
-        },
         {
           name: "Course",
           data: courseArr,

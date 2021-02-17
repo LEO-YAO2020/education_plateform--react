@@ -16,6 +16,7 @@ import {
   Avatar,
   Button,
   notification,
+  Image,
 } from "antd";
 import {
   MenuUnfoldOutlined,
@@ -38,7 +39,7 @@ import {
   messageEvent,
 } from "../../api/response";
 import { useMessageContext } from "../provider";
-import role from "../../lib/role";
+import UserIcon from "./userIcon";
 
 const { Header, Sider, Content } = Layout;
 const { TabPane } = Tabs;
@@ -586,7 +587,7 @@ function TableComponent(props) {
           <Row align="middle">
             <MessagePanel />
             <HeaderIcon>
-              <LogoutOutlined onClick={logoutHandler} />
+              <UserIcon logout={logoutHandler} />
             </HeaderIcon>
           </Row>
         </StyledLayoutHeader>

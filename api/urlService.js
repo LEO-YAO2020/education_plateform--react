@@ -6,6 +6,7 @@ export const basePath = {
   courses: "courses",
   teachers: "teachers",
   statistics: "statistics",
+  profile: "profile",
 };
 
 export const subPath = {

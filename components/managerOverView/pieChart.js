@@ -5,8 +5,8 @@ import HighCharts from "highcharts/highmaps";
 const pieChart = (props) => {
   let { data } = props;
   let { title } = props;
-
   let { type } = props;
+
   const [option, setOption] = useState({
     chart: {
       plotBackgroundColor: null,

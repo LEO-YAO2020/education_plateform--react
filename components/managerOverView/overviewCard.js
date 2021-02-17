@@ -9,6 +9,7 @@ import {
   SafetyOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
+import { round } from "lodash";
 
 const TitleIconStyle = styled(Col)`
   display: flex;
@@ -66,12 +67,16 @@ const overViewCard = (props) => {
             ) : (
               <SafetyOutlined />
             )
-          ) : (
+          ) : title === "TOTAL STUDENTS" ? (
             <TeamOutlined />
+          ) : title === "TOTAL TEACHERS" ? (
+            <UserOutlined />
+          ) : (
+            <BookOutlined />
           )}
         </TitleIconStyle>
         <Col span={18}>
-          <RowStyle> {studentOverView ? title : "Total Students"}</RowStyle>
+          <RowStyle> {title}</RowStyle>
           <RowStyle style={{ fontSize: "30px" }}>
             {studentOverView
               ? title === "Pending"
@@ -79,7 +84,7 @@ const overViewCard = (props) => {
                 : title === "Active"
                 ? action
                 : done
-              : "Total Students"}
+              : null}
             {data?.total}
           </RowStyle>
           <RowStyle>
@@ -91,7 +96,7 @@ const overViewCard = (props) => {
                     : title === "Active"
                     ? (action / data?.amount) * 100
                     : (done / data?.amount) * 100
-                  : (data?.lastMonthAdded / data?.total) * 100
+                  : round((data?.lastMonthAdded / data?.total) * 100, 1)
               }
               strokeColor={studentOverView ? "green" : "blue"}
             />
