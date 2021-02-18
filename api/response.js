@@ -54,6 +54,33 @@ axiosInstance.interceptors.request.use((config) => {
         Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
       },
     };
+  } else if (config.url.includes("countries")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
+  } else if (config.url.includes("degrees")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
+  } else if (config.url.includes("courses/type")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
   }
 
   return config;
@@ -202,6 +229,19 @@ export const getStudentProfile = async (param) => {
 export const updateStudentDetail = async (param) => {
   return await apiPutResponse(`/profile/student/${param.id}`, param);
 };
+
+export const getCountries = async (param) => {
+  return await apiGetResponse(`/countries`, param);
+};
+
+export const getDegrees = async (param) => {
+  return await apiGetResponse(`/degrees`, param);
+};
+
+export const getInterestCourses = async (param) => {
+  return await apiGetResponse(`/courses/type`, param);
+};
+
 export const messageEvent = (userId) => {
   return new EventSource(
     `https://cms.chtoma.com/api/message/subscribe?userId=${userId}`,
