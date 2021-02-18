@@ -8,6 +8,12 @@ import {
   Descriptions,
   Divider,
   Tag,
+  Form,
+  Input,
+  InputNumber,
+  Radio,
+  Select,
+  Cascader,
 } from "antd";
 import { LoadingOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
@@ -16,13 +22,20 @@ import ImgCrop from "antd-img-crop";
 import {
   getStudentProfile,
   updateStudentDetail,
+  getCountries,
+  getDegrees,
+  getInterestCourses,
 } from "../../../../api/response";
+import EditForm from "../../../../components/editTable";
+import address from "../../../../data/address.json";
 
 export default function studentProfile() {
   const [studentData, setStudentData] = useState();
   const [fileList, setFileList] = useState([]);
-  const [uploading, setUploading] = useState(false);
   const [avatar, setAvatar] = useState("");
+  const [countries, setCountries] = useState([]);
+  const [degrees, setDegrees] = useState([]);
+  const [interestCourses, setInterestCourses] = useState([]);
 
   const programLanguageColors = [
     "magenta",
@@ -41,19 +54,22 @@ export default function studentProfile() {
     if (file?.response) {
       const { url } = file.response;
 
-      const res = await updateStudentDetail({
-        id: studentData.id,
+      await updateStudentDetail({
         avatar: url,
       });
-      console.log(res);
     }
-    if (file.status === "uploading") {
-      setUploading(true);
-    }
-    if (file.status === "done") {
-      setUploading(false);
-    }
+
     setFileList(newFileList);
+  };
+
+  const updateProfile = (value) => {
+    updateStudentDetail({ id: studentData.id, ...value }).then((res) => {
+      const { data } = res.data;
+
+      if (!!data) {
+        setStudentData(data);
+      }
+    });
   };
 
   function beforeUploadAvatar(file) {
@@ -87,8 +103,20 @@ export default function studentProfile() {
   useEffect(async () => {
     const userId = localStorage.getItem("userId");
     const res = await getStudentProfile(userId);
+    getCountries().then((res) => {
+      const { data } = res.data;
+      setCountries(data);
+    });
+    getDegrees().then((res) => {
+      const { data } = res.data;
+      setDegrees(data);
+    });
+    getInterestCourses().then((res) => {
+      const { data } = res.data;
+      setInterestCourses(data);
+    });
     const { data } = res.data;
-    console.log(data);
+
     setStudentData(data);
     setAvatar(data.avatar);
     setFileList([
@@ -127,25 +155,97 @@ export default function studentProfile() {
           <>
             <Descriptions title="User Info">
               <Descriptions.Item label="Name">
-                {studentData.name}
+                <EditForm
+                  text={studentData.name}
+                  allowEnterToSave
+                  onSave={updateProfile}
+                >
+                  <Form.Item
+                    initialValue={studentData.name}
+                    rules={[{ required: true }]}
+                    name="name"
+                  >
+                    <Input />
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
               <Descriptions.Item label="Age">
-                {studentData.age}
+                <EditForm text={studentData.age} onSave={updateProfile}>
+                  <Form.Item initialValue={studentData.age} name="age">
+                    <InputNumber min={0} max={100} />
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
               <Descriptions.Item label="Gender">
-                {studentData.gender === 1 ? "Female" : "Male"}
+                <EditForm
+                  text={studentData.gender === 2 ? "Female" : "Male"}
+                  onSave={updateProfile}
+                >
+                  <Form.Item name="gender">
+                    <Radio.Group defaultValue={studentData.gender}>
+                      <Radio value={2}>Male</Radio>
+                      <Radio value={1}>Female</Radio>
+                    </Radio.Group>
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
               <Descriptions.Item label="Phone">
-                {studentData.phone}
+                <EditForm
+                  text={studentData.phone}
+                  allowEnterToSave
+                  onSave={updateProfile}
+                >
+                  <Form.Item
+                    initialValue={studentData.phone}
+                    rules={[{ required: true }]}
+                    name="phone"
+                  >
+                    <Input />
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
               <Descriptions.Item label="Email">
                 {studentData.email}
               </Descriptions.Item>
               <Descriptions.Item label="Country">
-                {studentData.country}
+                <EditForm
+                  text={studentData.country}
+                  allowEnterToSave
+                  onSave={updateProfile}
+                >
+                  <Form.Item
+                    initialValue={studentData.country}
+                    rules={[{ required: true }]}
+                    name="country"
+                  >
+                    <Select>
+                      {countries.map((item, index) => (
+                        <Select.Option value={item.en} key={index}>
+                          {item.en}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
               <Descriptions.Item label="Address">
-                {studentData.address}
+                <EditForm
+                  text={studentData.address}
+                  allowEnterToSave
+                  onSave={updateProfile}
+                >
+                  <Form.Item rules={[{ required: true }]} name="address">
+                    <Cascader
+                      options={address}
+                      placeholder="Please select"
+                      fieldNames={{
+                        label: "name",
+                        value: "name",
+                        children: "children",
+                      }}
+                    />
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
             </Descriptions>
             <Divider />
@@ -157,21 +257,76 @@ export default function studentProfile() {
             <Divider />
             <Descriptions title="Other" column={2}>
               <Descriptions.Item label="Degree">
-                {studentData.education}
+                <EditForm
+                  text={studentData.education}
+                  allowEnterToSave
+                  onSave={updateProfile}
+                >
+                  <Form.Item
+                    initialValue={studentData.education}
+                    rules={[{ required: true }]}
+                    name="education"
+                  >
+                    <Select>
+                      {degrees.map((item, index) => (
+                        <Select.Option value={item.short} key={index}>
+                          {item.short}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
               <Descriptions.Item label="Interest">
-                {studentData.interest.map((item, index) => {
-                  return <Tag color={programLanguageColors[index]}>{item}</Tag>;
-                })}
+                <EditForm
+                  text={studentData.interest.map((item, index) => {
+                    return (
+                      <Tag color={programLanguageColors[index]}>{item}</Tag>
+                    );
+                  })}
+                  allowEnterToSave
+                  onSave={updateProfile}
+                >
+                  <Form.Item
+                    rules={[{ required: true }]}
+                    name="interest"
+                    initialValue={studentData.interest}
+                  >
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      placeholder="select one interest language"
+                      style={{ minWidth: "10em" }}
+                    >
+                      {interestCourses.map((item, index) => {
+                        return (
+                          <Select.Option key={index}>{item.name}</Select.Option>
+                        );
+                      })}
+                    </Select>
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
               <Descriptions.Item label="Intro">
-                {studentData.description}
+                <EditForm
+                  text={studentData.description}
+                  allowEnterToSave
+                  onSave={updateProfile}
+                >
+                  <Form.Item
+                    rules={[{ required: true }]}
+                    name="description"
+                    initialValue={studentData.description}
+                  >
+                    <Input.TextArea style={{ minWidth: "50vw" }}>
+                      {studentData.description}
+                    </Input.TextArea>
+                  </Form.Item>
+                </EditForm>
               </Descriptions.Item>
             </Descriptions>
           </>
         )}
-
-        <Divider />
       </Card>
     </Layout>
   );
