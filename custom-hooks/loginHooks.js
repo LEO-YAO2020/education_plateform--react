@@ -10,7 +10,7 @@ export const useLoginType = () => {
       Router.push(`/dashboard/${type}`, undefined, { shallow: true });
     }
     if (!localStorage.getItem("token")) {
-      Router.push("/login", undefined, { shallow: true });
+      Router.push("/", undefined, { shallow: true });
     }
   }, []);
 };

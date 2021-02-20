@@ -1,4 +1,5 @@
 import { makeServer } from "../mirage/mirage";
+import Head from "next/head";
 import "../styles/globals.less";
 import { MessageProvider } from "../components/provider";
 
@@ -8,9 +9,20 @@ if (process.env.NODE_ENV === "development") {
 
 function MyApp({ Component, pageProps }) {
   return (
-    <MessageProvider>
-      <Component {...pageProps} />
-    </MessageProvider>
+    <>
+      <Head>
+        <meta charSet="utf-8" />
+        <title>Online Education</title>
+        <meta
+          key="description"
+          name="description"
+          content="Online Education System"
+        />
+      </Head>
+      <MessageProvider>
+        <Component {...pageProps} />
+      </MessageProvider>
+    </>
   );
 }
 

@@ -21,8 +21,9 @@ const Courses = () => {
 
   useEffect(async () => {
     let type = localStorage.getItem("loginType");
+    let userId = localStorage.getItem("userId");
     type = type.substr(1, type.length - 2);
-    const AllCourses = await getCourses(pagination);
+    const AllCourses = await getCourses({ ...pagination, userId });
 
     const { courses, length } = AllCourses.data.data;
     const source = [...data, ...courses];

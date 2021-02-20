@@ -13,8 +13,8 @@ import teacherProfile from "../data/teacher_profile.json";
 import sales from "../data/sales.json";
 import schedules from "../data/schedule.json";
 import { format, formatDistance, subMonths } from "date-fns";
-import { groupBy } from "lodash";
-import { AES } from "crypto-js";
+
+import { countBy, groupBy, intersection, uniq } from "lodash";
 
 export function makeServer({ environment = "test" } = {}) {
   let server = createServer({
@@ -146,43 +146,80 @@ export function makeServer({ environment = "test" } = {}) {
       });
 
       this.get(basePath.student, (schema, request) => {
-        const limit = request.queryParams.limit;
-        const page = request.queryParams.page;
-        let query = request.queryParams.query;
+        const { query, userId } = request.queryParams;
+        const permission = getPermission();
+        const limit = +request.queryParams.limit;
+        const page = +request.queryParams.page;
         const all = schema.students.all();
-        let students = all.filter((item) => !query || item.name.includes(query))
-          .models;
-        const total = !query ? all.length : students.length;
-        let data = { total, students };
+        const getResult = (students, total) => {
+          students = students.slice(limit * (page - 1), limit * page);
+          students = students.map((student) => {
+            const studentCourses = student.studentCourses;
+            let courses = [];
 
-        if (limit && page) {
-          const start = limit * (page - 1);
+            if (studentCourses.length) {
+              courses = studentCourses.models.map((model) => {
+                const name = model.course.name;
 
-          students = students.slice(start, start + limit);
-          data = { ...data, paginator: { limit, page, total } };
+                return { name, id: +model.id, courseId: model.course.id };
+              });
+            }
+
+            student.attrs.courses = courses;
+            student.attrs.typeName = student.type.name;
+            return student;
+          });
+
+          return { total, paginator: { limit, page, total }, students };
+        };
+        let data = null;
+
+        if (permission === 9) {
+          let students = all.filter(
+            (item) => !query || item.name.includes(query)
+          ).models;
+          const total = !query ? all.length : students.length;
+
+          data = getResult(students, total);
+        } else if (permission === 2) {
+          const user = schema.users.find(userId);
+          const teacher = schema.teachers.findBy({ email: user.attrs.email });
+
+          const courses = schema.courses
+            .all()
+            .filter((item) => item.teacherId === +teacher.attrs.id).models;
+          const courseIds = courses.map((item) => +item.id);
+          console.log(all);
+          const studentsBelongTeacher = all.models
+            .map((item) => {
+              const ids = intersection(
+                item.studentCourses.models.map((item) => item.attrs.courseId),
+                courseIds
+              );
+
+              // omit the courses does not belong to the teacher
+              item.studentCourses = item.studentCourses.filter((item) =>
+                ids.includes(+item.courseId)
+              );
+
+              return item.studentCourses.length ? item : null;
+            })
+            .filter((item) => !!item);
+          const students = studentsBelongTeacher.filter(
+            (item) => !query || item.name.includes(query)
+          );
+          const total = !query ? studentsBelongTeacher.length : students.length;
+
+          data = getResult(students, total);
+        } else if (permission === 1) {
+          return new Response(
+            403,
+            {},
+            { msg: "Permission denied", code: 403, data: null }
+          );
         }
 
-        students = students.map((student) => {
-          const studentCourses = student.studentCourses;
-
-          let courses = [];
-          if (studentCourses.length > 0) {
-            studentCourses.models.map((model) => {
-              const name = model.course.name;
-              courses.push({ name, id: +model.id });
-            });
-          }
-
-          student.attrs.courses = courses;
-          student.attrs.typeName = student.type.name;
-
-          return student;
-        });
-        return new Response(
-          200,
-          {},
-          { data: { ...data, students }, msg: "success", code: 200 }
-        );
+        return new Response(200, {}, { data, msg: "success", code: 200 });
       });
 
       this.post(
