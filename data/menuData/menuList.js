@@ -106,6 +106,11 @@ const teacherMenuList = [
     path: "/dashboard/teacher",
   },
   {
+    title: "Class Schedule",
+    icon: <TeamOutlined />,
+    path: "/dashboard/teacher/schedule",
+  },
+  {
     title: "Students",
     icon: <PlaySquareOutlined />,
     key: "students",
@@ -115,17 +120,34 @@ const teacherMenuList = [
         icon: <UserOutlined />,
         path: "/dashboard/teacher/students",
       },
-      {
-        title: "Choose Student",
-        icon: <SelectOutlined />,
-        path: "",
-      },
     ],
   },
   {
     title: "Courses",
     icon: <CopyOutlined />,
-    path: "/dashboard/teacher/courses",
+    key: "courses",
+    children: [
+      {
+        title: "All Courses",
+        icon: <TeamOutlined />,
+        path: "/dashboard/teacher/courses",
+      },
+      {
+        title: "Add Courses",
+        icon: <FileAddOutlined />,
+        path: "/dashboard/teacher/courses/add-course",
+      },
+      {
+        title: "Edit Courses",
+        icon: <CommentOutlined />,
+        path: "/dashboard/teacher/edit-course",
+      },
+    ],
+  },
+  {
+    title: "Message",
+    icon: <TeamOutlined />,
+    path: "/dashboard/teacher/message",
   },
 ];
 

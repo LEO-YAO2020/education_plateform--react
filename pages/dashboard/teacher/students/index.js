@@ -1,13 +1,9 @@
 import React from "react";
-import { Button, Input, message, Modal, Popconfirm, Space, Table } from "antd";
+import { Input, Modal, Table } from "antd";
 import Layout from "../../../../components/layout/layout";
-import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import { deleteItem, getStudents, search } from "../../../../api/response";
-import _ from "lodash";
-import EditForm from "../../../../components/Form/form";
-import { formatDistanceToNow } from "date-fns";
 
-const { Search } = Input;
+import { getStudents, search } from "../../../../api/response";
+import _ from "lodash";
 
 class StudentList extends React.Component {
   state = {
@@ -17,14 +13,14 @@ class StudentList extends React.Component {
     data: [],
     pagination: {
       current: 1,
-      pageSize: 10,
+      pageSize: 20,
       showSizeChanger: true,
     },
     loading: false,
   };
   columns = [
     {
-      title: "No.",
+      title: "N.O",
       key: "id",
       render: (_text, _record, index) => index + 1,
     },
@@ -40,7 +36,7 @@ class StudentList extends React.Component {
       },
     },
     {
-      title: "Area",
+      title: "Country",
       dataIndex: "area",
       key: "area",
       filters: [
@@ -57,7 +53,7 @@ class StudentList extends React.Component {
       key: "email",
     },
     {
-      title: "Selected Curriculum",
+      title: "course",
       dataIndex: "courses",
       render: (_text, value) => {
         let names = [];
@@ -71,73 +67,38 @@ class StudentList extends React.Component {
       },
     },
     {
-      title: "Student Type",
-      dataIndex: "typeName",
-      filters: [
-        { text: "tester", value: "tester" },
-        { text: "developer", value: "developer" },
-      ],
-      onFilter: (value, record) => {
-        let type = record.typeName;
-
-        return type.indexOf(value) === 0;
-      },
-    },
-    {
-      title: "Join Time",
-      dataIndex: "ctime",
-      render: (value) => {
-        return formatDistanceToNow(new Date(value));
-      },
-    },
-    {
       title: "Action",
       dataIndex: "Action",
       render: (_value, record, index) => (
-        <Space size="middle">
-          <a
-            onClick={() =>
-              this.setState({
-                isModalVisible: true,
-                index: record.id,
-                addStudent: false,
-              })
-            }
-          >
-            Edit
-          </a>
-          <Popconfirm
-            title="Are you sure？"
-            icon={<QuestionCircleOutlined style={{ color: "red" }} />}
-            onConfirm={async () => {
-              const param = { id: record.id };
-              const isDelete = await deleteItem(param);
+        <a
+          onClick={() => {
+            let msg = "";
 
-              if (isDelete.data.data) {
-                const index = this.state.data.findIndex(
-                  (item) => item.id === record.id
-                );
-                let newData = [...this.state.data];
-
-                newData.splice(index, 1);
-                this.setState({
-                  data: newData,
-                  total: this.state.total - 1,
-                });
-                message.success(isDelete.data.msg);
-              }
-            }}
-          >
-            <a>Delete</a>
-          </Popconfirm>
-        </Space>
+            Modal.info({
+              title: `Notify ${record.name}`,
+              content: (
+                <Input
+                  placeholder="Please input a message"
+                  onChange={(event) => (msg = event.target.value)}
+                />
+              ),
+              onOk: (close) => {
+                // TODO: send notification to student;
+                close();
+              },
+            });
+          }}
+        >
+          Notify
+        </a>
       ),
     },
   ];
 
   param = {
     page: 1,
-    limit: 10,
+    limit: 20,
+    userId: 1,
   };
   value = "";
 
@@ -174,7 +135,7 @@ class StudentList extends React.Component {
     this.value = value.target.value;
     const params = {
       page: 1,
-      limit: 10,
+      limit: 20,
       query: value.target.value,
     };
     const res = await search(params);
@@ -241,26 +202,6 @@ class StudentList extends React.Component {
   render() {
     return (
       <Layout>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          style={{ float: "left" }}
-          onClick={this.handleAdd}
-        >
-          Add
-        </Button>
-        <Search
-          placeholder="input search text"
-          allowClear
-          onChange={_.debounce(this.inputChangeHandler, 1000)}
-          style={{
-            width: "30%",
-            marginBottom: "20px",
-            display: "block",
-            float: "right",
-          }}
-        />
-
         <Table
           rowKey="id"
           columns={this.columns}
@@ -269,39 +210,6 @@ class StudentList extends React.Component {
           loading={this.state.loading}
           onChange={this.handleTableChange}
         />
-        <Modal
-          title={
-            this.state.addStudent === true ? "Add Student" : "Edit Student"
-          }
-          visible={this.state.isModalVisible}
-          onCancel={this.handleCancel}
-          footer={
-            <Button key="back" onClick={this.handleCancel}>
-              Cancel
-            </Button>
-          }
-        >
-          <EditForm
-            student={this.state.index}
-            isAdd={this.state.addStudent}
-            addSuccess={(student) => {
-              this.setState({
-                data: [...this.state.data, student],
-                isModalVisible: false,
-              });
-            }}
-            editSuccess={(student) => {
-              let data = [...this.state.data];
-              const index = data.findIndex((item) => item.id === student.id);
-
-              data[index] = student;
-              this.setState({
-                data: [...data],
-                isModalVisible: false,
-              });
-            }}
-          />
-        </Modal>
       </Layout>
     );
   }

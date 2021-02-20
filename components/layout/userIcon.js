@@ -6,7 +6,6 @@ import {
   ProfileOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { useRouter } from "next/router";
 import Link from "next/link";
 
 export default function userIcon(props) {

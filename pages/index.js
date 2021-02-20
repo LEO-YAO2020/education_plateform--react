@@ -1,9 +1,20 @@
 import { useLoginType } from "../custom-hooks/loginHooks";
+import Head from "next/head";
+import React from "react";
+import { Carousel } from "antd";
+import Link from "next/link";
 
 export default function Home() {
   useLoginType();
   return (
     <>
+      <Head>
+        <title>Course Manger System</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <script src="/js/jquery-1.11.1.min.js" key="jq"></script>
+        <link href="/style.css" type="text/css" rel="stylesheet" />
+        <script src="/js/main.js" key="main"></script>
+      </Head>
       <header id="header">
         <div className="container">
           <a href="index.html" id="logo" title="HarrisonHighSchool">
@@ -15,62 +26,63 @@ export default function Home() {
               <li>
                 <a href="events.html">Courses</a>
               </li>
-              <li>
-                <a href="gallery.html">Students</a>
-              </li>
+
               <li>
                 <a href="events.html">Events</a>
               </li>
             </ul>
             <ul>
               <li>
+                <a href="gallery.html">Study</a>
+              </li>
+              <li>
                 <a href="gallery.html">Teachers</a>
-              </li>
-              <li>
-                <a href="gallery.html">Gallery</a>
-              </li>
-              <li>
-                <a href="#fancy" className="get-contact">
-                  Contact
-                </a>
               </li>
             </ul>
           </nav>
         </div>
+        <h3>
+          <Link href="/login"> SIGN IN</Link>
+        </h3>
       </header>
 
       <div className="slider">
         <ul className="bxslider">
-          <li>
-            <div className="container">
-              <div className="info">
-                <h2>
-                  It’s Time to <span>Get back to school</span>
-                </h2>
-                <a href="#">Check out our new programs</a>
+          <Carousel autoplay>
+            <li>
+              <div className="container">
+                <div className="info">
+                  <h2>
+                    It’s Time to <br />
+                    <span>Get back to school</span>
+                  </h2>
+                  <a href="#">Check out our new programs</a>
+                </div>
               </div>
-            </div>
-          </li>
-          <li>
-            <div className="container">
-              <div className="info">
-                <h2>
-                  It’s Time to <span>Get back to school</span>
-                </h2>
-                <a href="#">Check out our new programs</a>
+            </li>
+            <li>
+              <div className="container">
+                <div className="info">
+                  <h2>
+                    It’s Time to <br />
+                    <span>Get back to school</span>
+                  </h2>
+                  <a href="#">Check out our new programs</a>
+                </div>
               </div>
-            </div>
-          </li>
-          <li>
-            <div className="container">
-              <div className="info">
-                <h2>
-                  It’s Time to <span>Get back to school</span>
-                </h2>
-                <a href="#">Check out our new programs</a>
+            </li>
+            <li>
+              <div className="container">
+                <div className="info">
+                  <h2>
+                    It’s Time to <br />
+                    <span>Get back to school</span>
+                  </h2>
+                  <a href="#">Check out our new programs</a>
+                </div>
               </div>
-            </div>
-          </li>
+            </li>
+          </Carousel>
         </ul>
         <div className="bg-bottom"></div>
       </div>
