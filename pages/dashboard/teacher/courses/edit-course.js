@@ -1,17 +1,1 @@
-import React from "react";
-import Layout from "../../../../components/layout/layout";
-
-const teacherDashboard = () => {
-  return (
-    <Layout>
-      <div
-        className="site-layout-background"
-        style={{ padding: 24, minHeight: 360 }}
-      >
-        Teachers edit Courses
-      </div>
-    </Layout>
-  );
-};
-
-export default teacherDashboard;
+export { default } from "../../manager/courses/edit-course";

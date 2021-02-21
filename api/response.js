@@ -138,6 +138,15 @@ export const deleteItem = async (param) => {
   return deleteResponse;
 };
 
+export const deleteCourse = async (param) => {
+  const deleteResponse = await axiosInstance
+    .delete(creatUrl([basePath.course, subPath.delete], param))
+    .then((res) => res)
+    .catch((err) => message.error(err));
+
+  return deleteResponse;
+};
+
 export const editItem = async (param) => {
   return await apiPostResponse([basePath.student, subPath.update], param);
 };
