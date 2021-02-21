@@ -140,7 +140,7 @@ const teacherMenuList = [
       {
         title: "Edit Courses",
         icon: <CommentOutlined />,
-        path: "/dashboard/teacher/edit-course",
+        path: "/dashboard/teacher/courses/edit-course",
       },
     ],
   },

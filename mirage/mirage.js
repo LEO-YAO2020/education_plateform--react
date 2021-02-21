@@ -447,7 +447,6 @@ export function makeServer({ environment = "test" } = {}) {
 
       this.get(basePath.course, (schema, request) => {
         const { id } = request.queryParams;
-        console.log(id);
         let course = schema.courses.findBy({ id });
 
         course.attrs.sales = course.sales.attrs;
@@ -490,6 +489,24 @@ export function makeServer({ environment = "test" } = {}) {
           }
         );
       });
+
+      this.delete(
+        creatUrl([basePath.course, subPath.delete]),
+        (schema, request) => {
+          const courseDetail = request.queryParams.id;
+          schema.courses.find(courseDetail).destroy();
+
+          return new Response(
+            200,
+            {},
+            {
+              code: 200,
+              msg: "success",
+              data: true,
+            }
+          );
+        }
+      );
 
       this.get("/class/schedule", (schema, request) => {
         const { userId } = request.queryParams;

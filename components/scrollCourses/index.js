@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Layout from "../../../../components/layout/layout";
-import { getCourses } from "../../../../api/response";
-import { Switch, List, Spin, Button } from "antd";
-import CourseDetail from "../../../../components/layout/listLayout";
+import { getCourses } from "../../api/response";
+import { List, Spin, Button } from "antd";
+import CourseDetail from "../layout/listLayout";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Link from "next/link";
-import GoBack from "../../../../components/goBack";
+import GoBack from "../goBack";
 import styled from "styled-components";
 
 const SpinStyle = styled.div`
@@ -13,41 +12,31 @@ const SpinStyle = styled.div`
   left: 50%;
 `;
 
-const Courses = (props) => {
-  const { teacher } = props;
+const Courses = () => {
   const [data, setData] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const [type, setType] = useState();
+
   const [pagination, setPagination] = useState({ limit: 20, page: 1 });
 
   useEffect(async () => {
-    let type = localStorage.getItem("loginType");
     let userId = localStorage.getItem("userId");
-    type = type.substr(1, type.length - 2);
-    const AllCourses = await getCourses({ ...pagination, userId });
 
-    const { courses, length } = AllCourses.data.data;
+    const AllCourses = await getCourses({ ...pagination, userId });
+    console.log(AllCourses);
+    const { courses, total } = AllCourses.data.data;
     const source = [...data, ...courses];
 
-    if (source.length >= length) {
+    if (source.length >= total) {
       setHasMore(false);
       setData(source);
 
       return;
     }
     setData(source);
-    setType(type);
   }, [pagination]);
 
   return (
-    <Layout>
-      {teacher ? (
-        <Switch
-          checkedChildren="On"
-          unCheckedChildren="Off"
-          style={{ float: "right" }}
-        />
-      ) : null}
+    <>
       <InfiniteScroll
         next={() => setPagination({ ...pagination, page: pagination.page + 1 })}
         loader={
@@ -76,7 +65,7 @@ const Courses = (props) => {
           renderItem={(item) => (
             <List.Item key={item.id}>
               <CourseDetail data={item}>
-                <Link href={`/dashboard/${type}/courses/${item.id}`} passHref>
+                <Link href={`/dashboard/teacher/courses/${item.id}`} passHref>
                   <Button type="primary" style={{ marginTop: "10px" }}>
                     Read More
                   </Button>
@@ -84,11 +73,11 @@ const Courses = (props) => {
               </CourseDetail>
             </List.Item>
           )}
+          style={{ marginBottom: "20px" }}
         ></List>
       </InfiniteScroll>
-
       <GoBack />
-    </Layout>
+    </>
   );
 };
 
