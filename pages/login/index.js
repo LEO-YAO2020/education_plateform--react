@@ -24,7 +24,7 @@ const StyledTitle = styled(Title)`
 const onFinish = async (values) => {
   const req = [values.loginType, values.email, values.password];
   const loginResponse = await login(...req);
-
+  console.log(loginResponse);
   if (!!loginResponse) {
     localStorage.setItem(
       "token",

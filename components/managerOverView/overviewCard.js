@@ -33,23 +33,32 @@ const CardStyle = styled(Card)`
 `;
 
 const overViewCard = (props) => {
-  const { data } = props;
-  const { studentOverView } = props;
-  const { title } = props;
-  const [pending, setPending] = useState();
-  const [action, setAction] = useState();
-  const [done, setDone] = useState();
+  const { data, studentData, studentOverView, teacherOverview, title } = props;
+  const [pending, setPending] = useState(0);
+  const [tPending, setTpending] = useState(0);
+  const [action, setAction] = useState(0);
+  const [tAction, setTaction] = useState(0);
+  const [done, setDone] = useState(0);
+  const [tDone, seTdone] = useState(0);
 
   useEffect(() => {
-    if (!studentOverView) {
+    if (!studentOverView && !teacherOverview) {
       return;
     }
-    const courses = data.courses;
 
-    const pendingAmount = courses.filter((item) => item.course.status == 0);
-    const actionAmount = courses.filter((item) => item.course.status == 1);
-    const doneAmount = courses.filter((item) => item.course.status == 2);
-
+    const courses = data.courses || data.status;
+    const pendingAmount = courses.filter((item) => +item.course?.status === 0);
+    const actionAmount = courses.filter((item) => +item.course?.status === 1);
+    const doneAmount = courses.filter((item) => +item.course?.status === 2);
+    courses.map((item) => {
+      if (+item.name === 0) {
+        setTpending(item.amount);
+      } else if (+item.name === 1) {
+        setTaction(item.amount);
+      } else if (+item.name === 0) {
+        seTdone(item.amount);
+      }
+    });
     setPending(pendingAmount.length);
     setAction(actionAmount.length);
     setDone(doneAmount.length);
@@ -71,6 +80,16 @@ const overViewCard = (props) => {
             <TeamOutlined />
           ) : title === "TOTAL TEACHERS" ? (
             <UserOutlined />
+          ) : teacherOverview ? (
+            title === "Pending" ? (
+              <BulbOutlined />
+            ) : title === "Active" ? (
+              <DesktopOutlined />
+            ) : title === "Done" ? (
+              <SafetyOutlined />
+            ) : (
+              <TeamOutlined />
+            )
           ) : (
             <BookOutlined />
           )}
@@ -84,6 +103,14 @@ const overViewCard = (props) => {
                 : title === "Active"
                 ? action
                 : done
+              : teacherOverview
+              ? title === "Pending"
+                ? tPending
+                : title === "Active"
+                ? tAction
+                : title === "Done"
+                ? tDone
+                : studentData.total
               : null}
             {data?.total}
           </RowStyle>

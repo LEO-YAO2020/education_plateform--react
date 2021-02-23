@@ -123,7 +123,7 @@ export function makeServer({ environment = "test" } = {}) {
                 token:
                   Math.random().toString(32).split(".")[1] + "~" + type.type,
                 loginType: type.type,
-                userId: +user.models[0].id,
+                userId: user.models[0].userId,
               },
               msg: "login successful",
             }

@@ -251,6 +251,10 @@ export const getInterestCourses = async (param) => {
   return await apiGetResponse(`/courses/type`, param);
 };
 
+export const getStatisticTeacher = async (param) => {
+  return await apiGetResponse(`/statistics/teacher`, param);
+};
+
 export const messageEvent = (userId) => {
   return new EventSource(
     `https://cms.chtoma.com/api/message/subscribe?userId=${userId}`,

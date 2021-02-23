@@ -1,17 +1,20 @@
 [  {
     "email": "teacher@admin.com",
     "password": "123456",
-    "type": "teacher"
+    "type": "teacher",
+    "userId":1
   },
   {
     "email": "student@admin.com",
     "password": "123456",
-    "type": "student"
+    "type": "student",
+    "userId":2
   },
 
   {
     "email": "manager@admin.com",
     "password": "123456",
-    "type": "manager"
+    "type": "manager",
+    "userId":0
   }
 ]

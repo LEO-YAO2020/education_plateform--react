@@ -10,21 +10,25 @@ import Link from "next/link";
 
 export default function userIcon(props) {
   const [avatar, setAvatar] = useState("");
-  const [userRole, setUserRole] = useState("");
+  const [userRole, setUserRole] = useState();
+
   useEffect(async () => {
     const userId = localStorage.getItem("userId");
+
     let role = localStorage.getItem("loginType");
-    const res = await getStudentProfile(userId);
-    const { data } = res.data;
     role = role.substr(1, role.length - 2);
+    if (role != "manager") {
+      const res = await getStudentProfile({ userId });
+      const { data } = res.data;
+      setAvatar(data.avatar);
+    }
     setUserRole(role);
-    setAvatar(data.avatar);
   }, []);
   return (
     <Dropdown
       overlay={
         <Menu>
-          {userRole !== "manager" && (
+          {!!userRole && userRole === "manager" ? null : (
             <Menu.Item>
               <ProfileOutlined />
               <Link href={`/dashboard/${userRole}/profile`} passHref>
