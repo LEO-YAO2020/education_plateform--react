@@ -67,7 +67,6 @@ const teacherDashboard = () => {
           </Row>
         </>
       )}
-      <div></div>
     </Layout>
   );
 };
