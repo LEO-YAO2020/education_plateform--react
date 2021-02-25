@@ -5,6 +5,7 @@ import {
   getStatisticTeacher,
   getStudentStatistic,
 } from "../../../api/response";
+
 import { Card, Col, Row } from "antd";
 import PieChart from "../../../components/managerOverView/pieChart";
 import LineChart from "../../../components/managerOverView/lineChart";
@@ -23,15 +24,16 @@ const teacherDashboard = () => {
   const [category, setCategory] = useState();
   const [courses, setCourses] = useState();
   const [coursesSchedule, setCoursesSchedule] = useState();
+
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     getStudentStatistic({ userId }).then((res) => {
       const { data } = res.data;
-
       setStudent(data);
     });
     getStatisticTeacher({ userId }).then((res) => {
       const { data } = res.data;
+
       setOverview(data);
       setCategory(data.type);
       setCourses(data.createdAt);
@@ -83,6 +85,7 @@ const teacherDashboard = () => {
           </Row>
         </>
       )}
+
       <Row gutter={[6, 16]}>
         <Col span={12}>
           {!!category && (

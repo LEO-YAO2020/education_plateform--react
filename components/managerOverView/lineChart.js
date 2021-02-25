@@ -4,6 +4,7 @@ import HighCharts from "highcharts/highmaps";
 
 const lineChart = (props) => {
   const courseCtime = props.data.coursesData?.createdAt || props.data;
+
   const [option, setOption] = useState({
     title: null,
     xAxis: {

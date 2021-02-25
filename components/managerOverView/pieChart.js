@@ -58,6 +58,7 @@ const pieChart = (props) => {
     }
 
     const source = data.map((item) => ({ name: item.name, y: item.amount }));
+
     const titleText = title?.split(/(?=[A-Z])/).join(" ");
     console.log(typeof titleText === "undefined");
     typeof titleText === "undefined"
