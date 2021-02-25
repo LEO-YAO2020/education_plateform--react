@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import HighchartsReact from "highcharts-react-official";
 import HighCharts from "highcharts";
-import HighchartsExporting from "highcharts/modules/exporting";
 import { zip } from "lodash";
 
 if (typeof HighCharts === "object") {

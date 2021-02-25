@@ -5,68 +5,110 @@ import {
   getStatisticTeacher,
   getStudentStatistic,
 } from "../../../api/response";
-import { Col, Row } from "antd";
+import { Card, Col, Row } from "antd";
+import PieChart from "../../../components/managerOverView/pieChart";
+import LineChart from "../../../components/managerOverView/lineChart";
+import dynamic from "next/dynamic";
+
+const HeatMapWithNoSSR = dynamic(
+  () => import("../../../components/managerOverView/heatMap"),
+  {
+    ssr: false,
+  }
+);
 
 const teacherDashboard = () => {
-  const [pending, setPending] = useState();
+  const [overview, setOverview] = useState();
   const [student, setStudent] = useState();
+  const [category, setCategory] = useState();
+  const [courses, setCourses] = useState();
+  const [coursesSchedule, setCoursesSchedule] = useState();
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     getStudentStatistic({ userId }).then((res) => {
       const { data } = res.data;
-      console.log(data);
+
       setStudent(data);
     });
     getStatisticTeacher({ userId }).then((res) => {
       const { data } = res.data;
-      setPending(data);
+      setOverview(data);
+      setCategory(data.type);
+      setCourses(data.createdAt);
+      setCoursesSchedule(data.classTime);
     });
   }, []);
   return (
     <Layout>
-      {!!pending && !!student && (
+      {!!overview && !!student && (
         <>
-          <Row gutter={[6, 16]}>
+          <Row gutter={[16, 16]}>
             <Col span={6}>
               <OverviewCard
                 teacherOverview={true}
-                teacherData={pending}
+                teacherData={overview}
                 title="Pending"
-                data={pending}
+                data={overview}
                 color="#1890ff"
               />
             </Col>
             <Col span={6}>
               <OverviewCard
                 teacherOverview={true}
-                teacherData={pending}
+                teacherData={overview}
                 title="Active"
-                data={pending}
+                data={overview}
                 color="#673bb7"
               />
             </Col>
             <Col span={6}>
               <OverviewCard
                 teacherOverview={true}
-                teacherData={pending}
+                teacherData={overview}
                 title="Done"
-                data={pending}
+                data={overview}
                 color="#ffaa16"
               />
             </Col>
             <Col span={6}>
               <OverviewCard
                 teacherOverview={true}
-                teacherData={pending}
+                teacherData={overview}
                 title="Students"
                 color="green"
-                data={pending}
+                data={overview}
                 studentData={student}
               />
             </Col>
           </Row>
         </>
       )}
+      <Row gutter={[6, 16]}>
+        <Col span={12}>
+          {!!category && (
+            <Card title="Course Category">
+              <PieChart data={category} />
+            </Card>
+          )}
+        </Col>
+        <Col span={12}>
+          {!!courses && (
+            <Card title="Course Increment">
+              <LineChart data={courses} />
+            </Card>
+          )}
+        </Col>
+      </Row>
+      <Row>
+        <Col span={24}>
+          {!!coursesSchedule && (
+            <HeatMapWithNoSSR
+              data={coursesSchedule}
+              title="Course schedule per weekday"
+            />
+          )}
+        </Col>
+      </Row>
     </Layout>
   );
 };

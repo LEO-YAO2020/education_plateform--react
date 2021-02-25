@@ -58,27 +58,41 @@ const pieChart = (props) => {
     }
 
     const source = data.map((item) => ({ name: item.name, y: item.amount }));
-    const titleText = title.split(/(?=[A-Z])/).join(" ");
-
-    setOption({
-      title: {
-        text: `<span style="text-transform: capitalize">${titleText}</span>`,
-      },
-      subtitle: {
-        text: `${titleText.split(" ")[0]} total: ${source.reduce(
-          (acc, cur) => acc + cur.y,
-          0
-        )}`,
-        align: "right",
-      },
-      series: [
-        {
-          name: "percentage",
-          colorByPoint: true,
-          data: source,
-        },
-      ],
-    });
+    const titleText = title?.split(/(?=[A-Z])/).join(" ");
+    console.log(typeof titleText === "undefined");
+    typeof titleText === "undefined"
+      ? setOption({
+          subtitle: {
+            text: `total: ${source.reduce((acc, cur) => acc + cur.y, 0)}`,
+            align: "right",
+          },
+          series: [
+            {
+              name: "percentage",
+              colorByPoint: true,
+              data: source,
+            },
+          ],
+        })
+      : setOption({
+          title: {
+            text: `<span style="text-transform: capitalize">${titleText}</span>`,
+          },
+          subtitle: {
+            text: `${titleText.split(" ")[0]} total: ${source.reduce(
+              (acc, cur) => acc + cur.y,
+              0
+            )}`,
+            align: "right",
+          },
+          series: [
+            {
+              name: "percentage",
+              colorByPoint: true,
+              data: source,
+            },
+          ],
+        });
   }, [type]);
   return (
     <HighchartsReact options={option} highcharts={HighCharts} ref={charRef} />

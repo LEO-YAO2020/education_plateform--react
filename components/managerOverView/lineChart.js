@@ -3,8 +3,7 @@ import HighchartsReact from "highcharts-react-official";
 import HighCharts from "highcharts/highmaps";
 
 const lineChart = (props) => {
-  const courseCtime = props.data.coursesData.createdAt;
-  console.log(props);
+  const courseCtime = props.data.coursesData?.createdAt || props.data;
   const [option, setOption] = useState({
     title: null,
     xAxis: {
