@@ -199,14 +199,12 @@ const getSubBreadcrumbNode = (menuList, pathnameNode, subPath) => {
           }
         });
       }
-    } else {
-      if (
-        item.title.toLowerCase() === pathnameNode[pathnameNode.length - 1] ||
-        item.title.slice(7).toLowerCase() ===
-          pathnameNode[pathnameNode.length - 1]
-      ) {
-        return <Breadcrumb.Item key={path}>{item.title}</Breadcrumb.Item>;
-      }
+    } else if (
+      item.title.toLowerCase() === pathnameNode[pathnameNode.length - 1] ||
+      item.title.slice(7).toLowerCase() ===
+        pathnameNode[pathnameNode.length - 1]
+    ) {
+      return <Breadcrumb.Item key={path}>{item.title}</Breadcrumb.Item>;
     }
   });
 };
@@ -546,6 +544,7 @@ function TableComponent(props) {
     const pathnameNode = pathname.split("/");
     const root = pathnameNode.slice(0, 3).join("/");
     const subPath = pathnameNode.slice(0).join("/");
+
     const type = pathnameNode[pathnameNode.length - 1];
     let isOverview = false;
     if (type === "student" || type === "teacher" || type === "manager") {
@@ -559,7 +558,11 @@ function TableComponent(props) {
           >{`CMS ${pathnameNode[2].toLocaleUpperCase()} SYSTEM`}</Link>
         </Breadcrumb.Item>
         {isOverview ? <Breadcrumb.Item>Overview</Breadcrumb.Item> : null}
-        {getSubBreadcrumbNode(menuList, pathnameNode, subPath)}
+        {pathnameNode[pathnameNode.length - 1] === "profile" ? (
+          <Breadcrumb.Item key="profile">Profile</Breadcrumb.Item>
+        ) : (
+          getSubBreadcrumbNode(menuList, pathnameNode, subPath)
+        )}
       </Breadcrumb>
     );
   };

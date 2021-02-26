@@ -180,6 +180,7 @@ a:hover {
 	padding: 8px 0 20px 0;
 	z-index: 99;
 	position: relative;
+
 }
 
 #logo {
@@ -192,13 +193,32 @@ a:hover {
 	background: url(../images/logo.png) no-repeat;
 	position: relative;
 	z-index: 3;
+	filter: contrast(100%) drop-shadow(2px 4px 6px black);
 }
-#header h3{
-	position: absolute;
-	top: 3.5rem;
-	right: 11rem;
-	font-size: 21px;
+#header.light-header {
+	background-color: transparent;
+	transition: all ease-out 1s;
+	box-shadow: none;
 }
+
+#header.light-header #logo {
+	transform: scale(1) translateY(0);
+	transform-origin: center;
+	transition: all ease-out 1s;
+}
+
+#header.dark-header {
+	background-color: #526480;
+	transition: all ease-in 1s;
+	box-shadow: -1px 6px 10px 0px #00000078;
+}
+
+#header.dark-header #logo {
+	transform: scale(.75) translateY(-15px);
+	transform-origin: center;
+	transition: all ease-in 1s;
+}
+
 
 
 /* Navigation
@@ -1853,6 +1873,7 @@ a.btn.blue,
 		height: 100px;
 		margin: 0 auto;
 		background-size: 90px 100px;
+		box-shadow: 0 0 10px 5px rgba(242, 99, 4, 0.2);;
 	}
 
 	.menu-trigger {

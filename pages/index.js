@@ -3,6 +3,7 @@ import Head from "next/head";
 import React from "react";
 import { Carousel } from "antd";
 import Link from "next/link";
+import Header from "../components/home/header";
 
 export default function Home() {
   useLoginType();
@@ -15,36 +16,7 @@ export default function Home() {
         <link href="/style.css" type="text/css" rel="stylesheet" />
         <script src="/js/main.js" key="main"></script>
       </Head>
-      <header id="header">
-        <div className="container">
-          <a href="index.html" id="logo" title="HarrisonHighSchool">
-            HarrisonHighSchool
-          </a>
-          <div className="menu-trigger"></div>
-          <nav id="menu">
-            <ul>
-              <li>
-                <a href="events.html">Courses</a>
-              </li>
-
-              <li>
-                <a href="events.html">Events</a>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <a href="gallery.html">Study</a>
-              </li>
-              <li>
-                <a href="gallery.html">Teachers</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-        <h3>
-          <Link href="/login"> SIGN IN</Link>
-        </h3>
-      </header>
+      <Header></Header>
 
       <div className="slider">
         <ul className="bxslider">
