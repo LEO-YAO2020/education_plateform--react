@@ -231,12 +231,16 @@ export const getStudentStatistic = async (param) => {
   return await apiGetResponse("/statistics/student", param);
 };
 
-export const getStudentProfile = async (param) => {
+export const getProfile = async (param) => {
   return await apiGetResponse("/profile", param);
 };
 
 export const updateStudentDetail = async (param) => {
   return await apiPutResponse(`/profile/student/${param.id}`, param);
+};
+
+export const updateTeacherDetail = async (param) => {
+  return await apiPutResponse(`/profile/teacher/${param.id}`, param);
 };
 
 export const getCountries = async (param) => {

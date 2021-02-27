@@ -22,7 +22,7 @@ const Courses = () => {
     let userId = localStorage.getItem("userId");
 
     const AllCourses = await getCourses({ ...pagination, userId });
-    console.log(AllCourses);
+
     const { courses, total } = AllCourses.data.data;
     const source = [...data, ...courses];
 

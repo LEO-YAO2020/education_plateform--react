@@ -2,7 +2,6 @@ import { useLoginType } from "../custom-hooks/loginHooks";
 import Head from "next/head";
 import React from "react";
 import { Carousel } from "antd";
-import Link from "next/link";
 import Header from "../components/home/header";
 
 export default function Home() {
@@ -13,7 +12,6 @@ export default function Home() {
         <title>Course Manger System</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <script src="/js/jquery-1.11.1.min.js" key="jq"></script>
-        <link href="/style.css" type="text/css" rel="stylesheet" />
         <script src="/js/main.js" key="main"></script>
       </Head>
       <Header></Header>

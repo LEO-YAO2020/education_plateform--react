@@ -56,7 +56,12 @@ export default function editForm(props) {
           </div>
         </Form>
       ) : (
-        <div onDoubleClick={() => setIsEdit(true)}>{props.text}</div>
+        <div
+          onDoubleClick={() => setIsEdit(true)}
+          style={props?.textContainerStyles}
+        >
+          {props.text}
+        </div>
       )}
     </>
   );

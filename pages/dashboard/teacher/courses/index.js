@@ -1,4 +1,3 @@
-import CourseCards from "../../manager/courses";
 import React, { useEffect, useState } from "react";
 import Layout from "../../../../components/layout/layout";
 import {
@@ -10,9 +9,6 @@ import {
   Rate,
   message,
   Tooltip,
-  List,
-  Spin,
-  Button,
   Row,
   Col,
 } from "antd";
@@ -20,18 +16,11 @@ import { debounce } from "lodash";
 import { getCourses, deleteCourse } from "../../../../api/response";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { PlusOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import ScrollCourses from "../../../../components/scrollCourses";
 import styled from "styled-components";
-import InfiniteScroll from "react-infinite-scroll-component";
-import CourseDetail from "../../../../components/layout/listLayout";
-import GoBack from "../../../../components/goBack";
 
 const { Search } = Input;
-const SpinStyle = styled.div`
-  position: relative;
-  left: 50%;
-`;
 
 export default function teacherCourses() {
   const [pagination, setPagination] = useState({
@@ -39,17 +28,11 @@ export default function teacherCourses() {
     page: 1,
     showSizeChanger: true,
   });
-  const [paginator, setPaginator] = useState({
-    limit: 20,
-    page: 1,
-  });
+
   const [loading, setLoading] = useState(false);
   const [teacherCourses, setTeacherCourses] = useState([]);
   const [total, setTotal] = useState(0);
   const [changeLayout, setChangeLayout] = useState(false);
-  const [data, setData] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [type, setType] = useState();
 
   const status = ["Pending", "Processing", "Finished"];
   const duration = ["Year", "Month", "Day", "Week", "Hour"];

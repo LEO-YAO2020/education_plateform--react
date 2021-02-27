@@ -1,6 +1,6 @@
 import { Dropdown, Menu, Avatar } from "antd";
 import React, { useEffect, useState } from "react";
-import { getStudentProfile } from "../../api/response";
+import { getProfile } from "../../api/response";
 import {
   LogoutOutlined,
   ProfileOutlined,
@@ -18,7 +18,7 @@ export default function userIcon(props) {
     let role = localStorage.getItem("loginType");
     role = role.substr(1, role.length - 2);
     if (role != "manager") {
-      const res = await getStudentProfile({ userId });
+      const res = await getProfile({ userId, role });
       const { data } = res.data;
       setAvatar(data.avatar);
     }

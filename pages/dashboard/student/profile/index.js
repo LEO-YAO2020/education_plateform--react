@@ -20,7 +20,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../../../../components/layout/layout";
 import ImgCrop from "antd-img-crop";
 import {
-  getStudentProfile,
+  getProfile,
   updateStudentDetail,
   getCountries,
   getDegrees,
@@ -102,7 +102,7 @@ export default function studentProfile() {
 
   useEffect(async () => {
     const userId = localStorage.getItem("userId");
-    const res = await getStudentProfile(userId);
+    const res = await getProfile(userId);
     getCountries().then((res) => {
       const { data } = res.data;
       setCountries(data);
