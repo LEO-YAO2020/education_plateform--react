@@ -99,7 +99,6 @@ const studentMessage = () => {
       >
         <InfiniteScroll
           next={() => {
-            setIsSame(false);
             setPagination({ ...pagination, page: pagination.page + 1 });
           }}
           loader={

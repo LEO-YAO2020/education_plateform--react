@@ -29,7 +29,7 @@ const editCourse = () => {
   async function onSearch(value) {
     setIsUploading(true);
     const course = await getCourses({ [searchBy]: value });
-    const { courses } = course.data;
+    const { courses } = course.data.data;
     setGetCourseBySearch(courses);
   }
 
@@ -64,7 +64,7 @@ const editCourse = () => {
               }}
               style={{ flex: 1 }}
             >
-              {getCourseBySearch.map((item, index) => {
+              {getCourseBySearch?.map((item, index) => {
                 return (
                   <Select.Option value={item.name} key={item.id}>
                     {`${item.name} - ${item.teacher} - ${item.type}`}

@@ -64,6 +64,11 @@ const menuList = [
       },
     ],
   },
+  {
+    title: "Message",
+    icon: <TeamOutlined />,
+    path: "/dashboard/manager/message",
+  },
 ];
 const studentMenuList = [
   {
