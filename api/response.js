@@ -81,6 +81,15 @@ axiosInstance.interceptors.request.use((config) => {
         Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
       },
     };
+  } else if (config.url.includes("teachers")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
   }
 
   return config;
@@ -147,6 +156,15 @@ export const deleteCourse = async (param) => {
   return deleteResponse;
 };
 
+export const deleteTeacher = async (param) => {
+  const deleteResponse = await axiosInstance
+    .delete(creatUrl([basePath.teacher, subPath.delete], param))
+    .then((res) => res)
+    .catch((err) => message.error(err));
+
+  return deleteResponse;
+};
+
 export const editItem = async (param) => {
   return await apiPostResponse([basePath.student, subPath.update], param);
 };
@@ -177,6 +195,14 @@ export const getCourseType = async (param) => {
 
 export const getTeachers = async (param) => {
   return await apiGetResponse(basePath.teachers, param);
+};
+
+export const updateTeacher = async (param) => {
+  return await apiPutResponse(basePath.teachers, param);
+};
+
+export const addTeacher = async (param) => {
+  return await apiPostResponse(basePath.teachers, param);
 };
 
 export const addCourse = async (param) => {

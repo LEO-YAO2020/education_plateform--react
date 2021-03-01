@@ -5,6 +5,7 @@ export const basePath = {
   course: "course",
   courses: "courses",
   teachers: "teachers",
+  teacher: "teacher",
   statistics: "statistics",
   profile: "profile",
 };

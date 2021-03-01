@@ -18,14 +18,13 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import ScrollCourses from "../../../../components/scrollCourses";
-import styled from "styled-components";
 
 const { Search } = Input;
 
 export default function teacherCourses() {
   const [pagination, setPagination] = useState({
-    limit: 20,
-    page: 1,
+    pageSize: 20,
+    current: 1,
     showSizeChanger: true,
   });
 
@@ -142,29 +141,33 @@ export default function teacherCourses() {
   const handleTableChange = (pagination) => {
     let userId = localStorage.getItem("userId");
 
-    getCourses({ limit: pagination.limit, page: pagination.page, userId }).then(
-      (res) => {
-        const { courses } = res.data.data;
+    getCourses({
+      limit: pagination.pageSize,
+      page: pagination.current,
+      userId,
+    }).then((res) => {
+      const { courses } = res.data.data;
 
-        setLoading(false);
-        setTeacherCourses(courses);
-        setTotal(res.data.data.total);
-        setPagination({ ...pagination, total: res.data.data.total });
-      }
-    );
+      setLoading(false);
+      setTeacherCourses(courses);
+      setTotal(res.data.data.total);
+      setPagination({ ...pagination, total: res.data.data.total });
+    });
   };
 
   useEffect(() => {
     let userId = localStorage.getItem("userId");
     setLoading(true);
-    getCourses({ limit: pagination.limit, page: pagination.page, userId }).then(
-      (res) => {
-        const { courses } = res.data.data;
-        setLoading(false);
-        setTeacherCourses(courses);
-        setPagination({ ...pagination, total: res.data.data.total });
-      }
-    );
+    getCourses({
+      limit: pagination.pageSize,
+      page: pagination.current,
+      userId,
+    }).then((res) => {
+      const { courses } = res.data.data;
+      setLoading(false);
+      setTeacherCourses(courses);
+      setPagination({ ...pagination, total: res.data.data.total });
+    });
   }, []);
 
   const inputChangeHandler = (value) => {
@@ -172,8 +175,8 @@ export default function teacherCourses() {
     let userId = localStorage.getItem("userId");
     setLoading(true);
     getCourses({
-      limit: pagination.limit,
-      page: pagination.page,
+      limit: pagination.pageSize,
+      page: pagination.current,
       userId,
       name: query,
     }).then((res) => {
@@ -183,8 +186,7 @@ export default function teacherCourses() {
       setPagination({ ...pagination, total: res.data.data.total });
     });
   };
-  const switchChangeHandler = (checked, e) => {
-    console.log(checked);
+  const switchChangeHandler = (checked) => {
     setChangeLayout(checked);
   };
 

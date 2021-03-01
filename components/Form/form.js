@@ -3,8 +3,6 @@ import { Form, Input, Button, Select, message } from "antd";
 import { editItem, addItem } from "../../api/response";
 
 const EditList = (props) => {
-  console.log("props :>> ", props.studentDetail);
-  console.log("props :>> ", props.isAdd);
   const { student, studentDetail } = props;
   const [form] = Form.useForm();
   const layout = {
