@@ -244,11 +244,15 @@ class StudentList extends React.Component {
   };
 
   handleCancel = () => {
-    this.setState({ isModalVisible: false, index: 0 });
+    this.setState({ isModalVisible: false, index: 0, studentDetail: null });
   };
 
   handleAdd = () => {
-    this.setState({ addStudent: true, isModalVisible: true });
+    this.setState({
+      addStudent: true,
+      isModalVisible: true,
+      studentDetail: null,
+    });
   };
 
   render() {
@@ -293,6 +297,7 @@ class StudentList extends React.Component {
               Cancel
             </Button>
           }
+          destroyOnClose
         >
           <EditForm
             student={this.state.index}
@@ -312,6 +317,7 @@ class StudentList extends React.Component {
               this.setState({
                 data: [...data],
                 isModalVisible: false,
+                studentDetail: null,
               });
             }}
           />

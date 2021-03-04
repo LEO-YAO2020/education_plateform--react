@@ -5,7 +5,7 @@ import Header from "../components/home/header";
 
 export default function Page() {
   const styles = new Array(8).fill(0).map((_, index) => ({ "--i": index }));
-  console.log(styles);
+
   return (
     <>
       <Head>

@@ -14,7 +14,7 @@ import Router from "next/router";
 import styled from "styled-components";
 import Role from "../../lib/role";
 import { login } from "../../api/response";
-import Header from "../../components/home/header";
+import Header from "../home/header";
 import Link from "next/link";
 
 const { Title } = Typography;
@@ -23,52 +23,28 @@ const StyledTitle = styled(Title)`
   text-align: center;
 `;
 
-const onFinish = async (values) => {
-  const req = [values.loginType, values.email, values.password];
-  const loginResponse = await login(...req);
-  console.log(loginResponse);
-  if (!!loginResponse) {
-    localStorage.setItem(
-      "token",
-      JSON.stringify(loginResponse.data.data.token)
-    );
-    localStorage.setItem(
-      "loginType",
-      JSON.stringify(loginResponse.data.data.role)
-    );
-    localStorage.setItem(
-      "userId",
-      JSON.stringify(loginResponse.data.data.userId)
-    );
-    message.success(loginResponse.data.msg);
-    Router.push("/dashboard");
-  }
-};
+const onFinish = async (values) => {};
 
-const onFinishFailed = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
-
-const Login = function () {
+const SignUp = function () {
   return (
     <>
       <Header />
       <Row justify="center" style={{ marginTop: "1%" }}>
         <Col span={8}>
           <Form
-            name="basic"
-            layout="horizontal"
-            className="login-form"
+            layout="vertical"
+            name="signUp"
+            className="signUp-form"
             onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
             initialValues={{
               remember: true,
               loginType: "student",
             }}
           >
-            <StyledTitle>Course Management Assistant</StyledTitle>
+            <StyledTitle>Sign up your account</StyledTitle>
             <Form.Item
               name="loginType"
+              label="Role"
               rules={[
                 {
                   required: true,
@@ -85,6 +61,7 @@ const Login = function () {
 
             <Form.Item
               name="email"
+              label="Email"
               rules={[
                 {
                   required: true,
@@ -102,6 +79,7 @@ const Login = function () {
 
             <Form.Item
               name="password"
+              label="Password"
               rules={[
                 {
                   required: true,
@@ -120,14 +98,42 @@ const Login = function () {
               />
             </Form.Item>
 
+            <Form.Item
+              name="Confirm Password"
+              label="Confirm Password"
+              dependencies={["password"]}
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Please confirm your password!",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error(
+                        "The two passwords that you entered do not match!"
+                      )
+                    );
+                  },
+                }),
+              ]}
+            >
+              <Input.Password placeholder="Please confirm your password!" />
+            </Form.Item>
+
             <Form.Item>
               <Button type="primary" htmlType="submit" block>
-                Sign In
+                Sign Up
               </Button>
             </Form.Item>
           </Form>
           <div>
-            No account ? <Link href="signup"> Sign Up</Link>
+            Already have an account?
+            <Link href="login"> Sign in</Link>
           </div>
         </Col>
       </Row>
@@ -135,4 +141,4 @@ const Login = function () {
   );
 };
 
-export default Login;
+export default SignUp;

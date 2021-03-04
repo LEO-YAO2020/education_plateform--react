@@ -242,6 +242,7 @@ const Teacher = () => {
             Cancel
           </Button>
         }
+        destroyOnClose
       >
         <EditForm
           teacher={index}

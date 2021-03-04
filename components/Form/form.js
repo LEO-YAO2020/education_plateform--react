@@ -54,26 +54,20 @@ const EditList = (props) => {
     }
   };
 
-  const initialValues = () => {
-    if (!props.isAdd) {
-      const initialValues = {
-        name: studentDetail.name,
-        email: studentDetail.email,
-        area: studentDetail.area,
-      };
-      return initialValues;
-    } else {
-      const initialValues = {
-        name: "",
-        email: "",
-      };
-
-      return initialValues;
-    }
-  };
+  console.log(studentDetail);
 
   return (
-    <Form {...layout} form={form} name="basic" onFinish={onFinish}>
+    <Form
+      {...layout}
+      form={form}
+      name="basic"
+      onFinish={onFinish}
+      initialValues={{
+        name: studentDetail?.name,
+        email: studentDetail?.email,
+        area: studentDetail?.area,
+      }}
+    >
       <Form.Item
         label="Name"
         name="name"
