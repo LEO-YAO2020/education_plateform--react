@@ -53,7 +53,7 @@ const Login = function () {
   return (
     <>
       <Header />
-      <Row justify="center" style={{ marginTop: "1%" }}>
+      <Row justify="center" style={{ marginTop: "5%" }}>
         <Col span={8}>
           <Form
             name="basic"

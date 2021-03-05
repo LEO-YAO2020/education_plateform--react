@@ -8,6 +8,7 @@ export const basePath = {
   teacher: "teacher",
   statistics: "statistics",
   profile: "profile",
+  signup: "signup",
 };
 
 export const subPath = {

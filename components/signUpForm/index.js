@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Row,
   Col,
@@ -5,17 +6,16 @@ import {
   Form,
   Input,
   Button,
-  Checkbox,
   Typography,
   message,
 } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import Router from "next/router";
 import styled from "styled-components";
 import Role from "../../lib/role";
-import { login } from "../../api/response";
-import Header from "../home/header";
+import { signup } from "../../api/response";
 import Link from "next/link";
+import Header from "../home/header";
+import { useRouter } from "next/router";
 
 const { Title } = Typography;
 
@@ -23,13 +23,26 @@ const StyledTitle = styled(Title)`
   text-align: center;
 `;
 
-const onFinish = async (values) => {};
-
 const SignUp = function () {
+  const router = useRouter();
+
+  const onFinish = async (values) => {
+    console.log(values);
+    const { email, loginType, password } = values;
+    signup({ email, role: loginType, password }).then((res) => {
+      console.log(res);
+      if (res.data.code === 201) {
+        message.success(res.data.msg);
+        router.push("login");
+      } else {
+        message.error("server error, try again later");
+      }
+    });
+  };
   return (
     <>
       <Header />
-      <Row justify="center" style={{ marginTop: "1%" }}>
+      <Row justify="center" style={{ marginTop: "5%" }}>
         <Col span={8}>
           <Form
             layout="vertical"

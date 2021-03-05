@@ -90,6 +90,24 @@ axiosInstance.interceptors.request.use((config) => {
         Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
       },
     };
+  } else if (config.url.includes("teachers")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
+  } else if (config.url.includes("signup")) {
+    return {
+      ...config,
+      baseURL: "https://cms.chtoma.com/api",
+      headers: {
+        ...config.headers,
+        Authorization: "Bearer " + JSON.parse(localStorage.getItem("token")),
+      },
+    };
   }
 
   return config;
@@ -132,6 +150,10 @@ export const getStudents = async (param) => {
 
 export const logout = async (type) => {
   return await apiPostResponse(basePath.logout, { type: type });
+};
+
+export const signup = async (param) => {
+  return await apiPostResponse(basePath.signup, param);
 };
 
 export const search = async (param) => {
