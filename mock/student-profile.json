@@ -1,0 +1,81 @@
+[
+  {
+    "address": "Rosemont Avenue Melbourne,Florida",
+    "age": 20,
+    "country": "New Zealand",
+    "avatar": "http://v.bootstrapmb.com/2020/11/cbgse9169/images/profile/profile.png",
+    "ctime": "2020-06-19 15:29:58",
+    "description": "A wonderful serenity has taken possession of my entire soul,like these sweet mornings of spring which I enjoy with my whole heart. I am alone,and feel the charm of existence was created for the bliss of souls like mine.I am so happy,my dear friend,so absorbed in the exquisite sense of mere tranquil existence,that I neglect my talents",
+    "education": "PH.D",
+    "email": "student@admin.com",
+    "gender": 1,
+    "id": 1,
+    "interest": [
+      "php",
+      "c#",
+      "Java",
+      "JavaScript",
+      "html",
+      "css",
+      "c"
+    ],
+    "memberEndAt": "2020-12-31 00:00:00",
+    "memberStartAt": "2020-12-01 00:00:00",
+    "name": "admin",
+    "phone": 13899990000,
+    "studentCourseIds": [
+      10,
+      11,
+      12,
+      21
+    ],
+    "typeId": 2,
+    "updateAt": "2020-12-01 13:22: 03"
+  },
+  {
+    "address": "Rosemont Avenue Melbourne,Florida",
+    "age": 20,
+    "country": "澳洲",
+    "avatar": "http://v.bootstrapmb.com/2020/11/cbgse9169/images/profile/profile.png",
+    "ctime": "2020-06-19 15:29:58",
+    "description": "A wonderful serenity has taken possession of my entire soul,like these sweet mornings of spring which I enjoy with my whole heart. I am alone,and feel the charm of existence was created for the bliss of souls like mine.I am so happy,my dear friend,so absorbed in the exquisite sense of mere tranquil existence,that I neglect my talents",
+    "education": "PH.D",
+    "email": "tiehaha@admin.com",
+    "gender": 2,
+    "id": 2,
+    "interest": [
+      "c"
+    ],
+    "memberEndAt": "2020-12-31 00:00:00",
+    "memberStartAt": "2020-12-01 00:00:00",
+    "name": "铁憨憨",
+    "phone": 13899990000,
+    "studentCourseIds": [
+      24,
+      40,
+      42
+    ],
+    "typeId": 2,
+    "updateAt": "2020-12-01 13:22: 03"
+  },
+  {
+    "address": "Rosemont Avenue Melbourne,Florida",
+    "age": 20,
+    "country": "澳洲",
+    "avatar": "http://v.bootstrapmb.com/2020/11/cbgse9169/images/profile/profile.png",
+    "ctime": "2020-06-19 15:29:58",
+    "description": "A wonderful serenity has taken possession of my entire soul,like these sweet mornings of spring which I enjoy with my whole heart. I am alone,and feel the charm of existence was created for the bliss of souls like mine.I am so happy,my dear friend,so absorbed in the exquisite sense of mere tranquil existence,that I neglect my talents",
+    "education": "PH.D",
+    "email": "tiehaha@admin.com",
+    "gender": 2,
+    "id": 3,
+    "interest": ["c++", "php", "Java"],
+    "memberEndAt": "2020-12-31 00:00:00",
+    "memberStartAt": "2020-12-01 00:00:00",
+    "name": "铁憨憨2",
+    "phone": 13899990000,
+    "studentCourseIds": [24, 40, 42],
+    "typeId": 2,
+    "updateAt": "2020-11-01 13:22: 03"
+  }
+]

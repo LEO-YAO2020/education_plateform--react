@@ -32,13 +32,6 @@ yarn-error.log*
 
 # vercel
 .vercel
-.vs
 
-.idea/
-target/
-.idea/.gitignore
-.idea/cms-27.iml
-.idea/misc.xml
-.idea/modules.xml
-.idea/vcs.xml
-.idea/codeStyles/codeStyleConfig.xml
+# chapter
+/chapter

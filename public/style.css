@@ -2067,12 +2067,7 @@ a.btn.blue,
 	width: 150px;
 	height: 150px;
 	transform-style: preserve-3d;
-	animation: animate 15s linear infinite;
-	background: url(images/logo.png) no-repeat;
-}
-
-.gallery-box:hover { 
-	animation-play-state: paused;
+	animation: animate 30s linear infinite;
 }
 
 @keyframes animate { 

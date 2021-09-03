@@ -1,0 +1,65 @@
+[
+	{
+		"id" : 10,
+		"studentId" : 1,
+		"courseId" : 8,
+		"ctime" : "2020-11-28 10:39:55",
+		"courseDate" : "2020-06-03"
+	},
+	{
+		"id" : 11,
+		"studentId" : 1,
+		"courseId" : 9,
+		"ctime" : "2020-10-01 10:41:56",
+		"courseDate" : "2020-06-30"
+	},
+	{
+		"id" : 12,
+		"studentId" : 1,
+		"courseId" : 10,
+		"ctime" : "2020-09-18 10:47:06",
+		"courseDate" : "2020-06-27"
+	},
+	{
+		"id" : 21,
+		"studentId" : 1,
+		"courseId" : 7,
+		"ctime" : "2020-09-22 11:20:10",
+		"courseDate" : "2020-06-12"
+	},
+	{
+		"id" : 24,
+		"studentId" : 53,
+		"courseId" : 8,
+		"ctime" : "2020-06-28 11:22:27",
+		"courseDate" : "2020-06-03"
+	},
+	{
+		"id" : 40,
+		"studentId" : 53,
+		"courseId" : 7,
+		"ctime" : "2020-06-30 18:44:53",
+		"courseDate" : "2020-06-12"
+	},
+	{
+		"id" : 42,
+		"studentId" : 53,
+		"courseId" : 10,
+		"ctime" : "2020-06-30 18:46:39",
+		"courseDate" : "2020-06-13"
+	},
+	{
+		"id" : 49,
+		"studentId" : 56,
+		"courseId" : 38,
+		"ctime" : "2020-07-28 10:39:55",
+		"courseDate" : "2020-07-05"
+	},
+	{
+		"id" : 50,
+		"studentId" : 56,
+		"courseId" : 10,
+		"ctime" : "2020-07-09 10:39:55",
+		"courseDate" : "2020-07-25"
+	}
+]
